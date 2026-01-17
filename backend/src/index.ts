@@ -8,6 +8,13 @@ const sql = postgres({
   password: process.env.DATABASE_PASSWORD,
 });
 
+const begin_with_timeout = (body) => {
+  return sql.begin(async (sql) => {
+    await sql`set local transaction_timeout '1s';`
+    await body()
+  })
+}
+
 await sql`
   create table if not exists "sheets" ( sheet jsonb );
 `;
