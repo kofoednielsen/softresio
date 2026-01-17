@@ -1,5 +1,6 @@
 import postgres from "postgres";
 import process from "node:process";
+import { Application, Router } from "@oak/oak";
 
 const sql = postgres({
   host: "database",
@@ -14,6 +15,14 @@ await sql`
   create index idxsheets ON sheets using gin ( sheet );
 `;
 
-Deno.serve((_req) => {
-  return new Response("Hello, World!");
+const router = new Router();
+
+router.get("/", (ctx) => {
+  ctx.response.body = "Hello world";
 });
+
+const app = new Application();
+app.use(router.routes());
+app.use(router.allowedMethods());
+
+app.listen();

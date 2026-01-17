@@ -5,6 +5,7 @@ WORKDIR /app
 
 # Copy source
 COPY ./deno.json deno.json
+COPY ./deno.lock deno.lock
 
 # Install dependencies (use just `deno install` if deno.json has imports)
 RUN deno install

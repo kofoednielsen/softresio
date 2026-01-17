@@ -3,6 +3,7 @@
     "dev": "deno run --watch server.ts"
   },
   "imports": {
+    "@oak/oak": "jsr:@oak/oak@^17.2.0",
     "postgres": "npm:postgres@^3.4.8"
   },
   "fmt": {
