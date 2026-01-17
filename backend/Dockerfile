@@ -1,16 +1,12 @@
-FROM denoland/deno:latest
+FROM oven/bun:latest
 
-# Create working directory
 WORKDIR /app
 
-# Copy source
-COPY ./deno.json deno.json
-COPY ./deno.lock deno.lock
+COPY package.json ./
+COPY bun.lock ./
 
-# Install dependencies (use just `deno install` if deno.json has imports)
-RUN deno install
+RUN bun install
 
-copy ./src ./
+COPY src ./
 
-# Run the app
-CMD ["deno", "run", "--allow-net", "server.ts"]
+CMD ["bun", "run", "dev"]

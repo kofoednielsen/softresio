@@ -1,11 +1,11 @@
 services:
   backend:
     build: "backend"
-    command: ["deno", "run", "--allow-net", "--watch", "server.ts"]
+    # command: ["deno", "run", "--allow-net", "--watch", "server.ts"]
     volumes:
-      - ./backend/src/:/app/:ro
+      - ./backend/src/:/app/src/:ro
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:3000:3000"
     environment:
       DATABASE_PASSWORD: "softres"
       DATABASE_USER: "softres"
