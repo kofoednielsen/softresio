@@ -1,4 +1,4 @@
-import postgres from "postgres"
+import postgres, { RowList, Row, TransactionSql, ParameterOrJSON } from "postgres"
 import process from "node:process"
 import { Sheet, Raid } from "../types/types.ts"
 import { Hono } from "hono"
@@ -10,17 +10,13 @@ const sql = postgres({
 })
 
 const begin_with_timeout = (
-  body: (sql: postgres.TransactionSql) => void | Promise<void>,
+  body: (tx: TransactionSql<{}>) => Promise<RowList<Row[]>>,
 ) => {
-  return sql.begin(async (sql) => {
-    await sql`set local transaction_timeout = '1s';`
-    return await body(sql)
+  return sql.begin(async (tx) => {
+    await tx`set local transaction_timeout = '1s';`
+    return await body(tx)
   })
 }
-
-sql.begin(async (sql) => {
-  await sql`select 1;`
-})
 
 await sql`
   create table if not exists "raids" ( raid jsonb );
@@ -33,9 +29,9 @@ await sql`
 const app = new Hono()
 
 app.get("/", async (c) => {
-  const res = await begin_with_timeout(async (sql: postgres.TransactionSql) => {
-    const res = await sql`select 6 as foo;`
-    return res.at(0)
+  const res = await begin_with_timeout(async (tx: TransactionSql<{}>) => {
+    const res = await tx`select 6 as foo;`
+    return res
   })
   console.log(res)
   return c.text(res.foo)
@@ -58,7 +54,8 @@ app.get("/make_sample", async (c) => {
             {
               item_id: 1933,
               sr_plus: 50,
-              comment: null
+              comment: null,
+              user_id: "auto:01923-123123-123123-123123"
             }
           ]
         }
@@ -69,14 +66,23 @@ app.get("/make_sample", async (c) => {
       access_token: "123"
     }
   }
-  const res = await sql`insert into raids ${sql({ raid })};`
+  await sql`insert into raids ${sql({ raid: raid })};`
   return c.json(raid.sheet)
 })
 
+// const [user]: [User?] = await sql`SELECT * FROM users WHERE id = ${id}`
+// if (!user) // => User | undefined
+//   throw new Error('Not found')
+// return user // => User
+
 app.get("/:sheet_id", async (c) => {
   const sheet_id = c.req.param('sheet_id')
-  const [{ sheet }]: [{ sheet: Sheet }] = await sql`select raid->'sheet' as sheet from raids where raid @> ${ {sheet: { id: sheet_id } }};`
-  return c.json(sheet)
+  const [raid] = await sql<{sheet: Sheet}[]>`select raid->'sheet' as sheet from raids where raid @> '{ "sheet": { "id": "${sheet_id}" } }';`
+  if (!raid) {
+   return c.json({ error: 'Raid not found' }, 404)
+  }
+  console.log(raid)
+  return c.json(raid.sheet)
 })
 
 Deno.serve(app.fetch)
