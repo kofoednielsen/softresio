@@ -3,11 +3,11 @@ FROM denoland/deno:latest
 WORKDIR /app
 
 # Install dependencies
-COPY deno.json deno.lock .
+COPY backend/deno.json backend/deno.lock .
 RUN deno install
 
 # Copy app
-COPY backend/src/ src/
+COPY backend/src/ ./src/
 COPY backend/types/ ./types/
 
 CMD ["deno", "task", "start"]

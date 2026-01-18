@@ -1,33 +1,48 @@
-export type Character = {
+export interface Character {
   name: string
   class: string
-  spec: string
+  spec: "Warrior" | "Mage" | "Paladin" | "Priest" | "Druid" | "Warlock" | "Rogue" | "Shaman"
 }
 
-export type SoftReserve = {
+export interface User {
+  user_id: string // uuidv4
+  issuer: "auto" | "discord"
+}
+
+export interface SoftReserve {
   item_id: number
-  sr_plus: number
+  sr_plus: number | null
   comment: string | null
 }
 
-export type Attendee = {
+export interface Attendee {
   character: Character
   soft_reserves: SoftReserve[]
+  user: User
 }
 
-export type Sheet = {
+export interface Password {
+  salt: string
+  hash: string
+}
+
+export interface Activiy {
+  time: string // rfc3339
+  user: User
+  action: "SRDeleted" | "SRCreated" | "SRUpdated" | "RaidCreated" | "RaidUpdated"
+  soft_reserve: SoftReserve
+}
+
+export interface Sheet {
   id: string
   sr_plus_enabled: boolean
   time: string // rfc 3339
   attendees: Attendee[]
+  admins: User[]
+  password: Password
+  activity_log: Activiy[]
 }
 
-export type Secrets = {
-  password_hash: string
-  access_token: string // uuidv4
-}
-
-export type Raid = {
+export interface Raid {
   sheet: Sheet
-  secrets: Secrets
 }
