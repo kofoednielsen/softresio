@@ -6,7 +6,7 @@ export interface Character {
 
 export interface User {
   user_id: string // uuidv4
-  issuer: "auto" | "discord"
+  issuer: string
 }
 
 export interface SoftReserve {
@@ -45,4 +45,17 @@ export interface Sheet {
 
 export interface Raid {
   sheet: Sheet
+}
+
+export interface GenericResponse<T> {
+  data?: T
+  error?: string
+  user: User
+}
+
+export interface CreateRaidRequest {
+  instance_id: number,
+  description: string,
+  use_sr_plus: boolean,
+  admin_password: string
 }

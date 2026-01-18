@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'preact/hooks'
 import { Grid, Paper, Title, Textarea, Select, useMantineTheme, Box, Button, Switch, PasswordInput } from '@mantine/core';
+import type { CreateRaidRequest } from '../types/types.ts'
 
 export function NewRaid() {
   const [count, setCount] = useState(5)
@@ -7,20 +8,25 @@ export function NewRaid() {
 
   const [instances, setInstances] = useState()
 
-  const [instance, setInstance] = useState("")
+  const [instance, setInstance] = useState<number>()
   const [description, setDescription] = useState("")
   const [adminPassword, setAdminPassword] = useState("")
   const [useSRPlus, setUseSRPlus] = useState(false)
 
   function createRaid() {
-    console.log(
-      {
-        instance,
-        description,
-        useSRPlus,
-        adminPassword
-      }
-    )
+    if (instance == undefined || adminPassword == undefined) {
+      alert("Missing information")
+      return
+    }
+    const request: CreateRaidRequest = {
+      instance_id: instance,
+      admin_password: adminPassword,
+      use_sr_plus: useSRPlus,
+      description: description
+    }
+    fetch("/api/new", { method: "POST", body: JSON.stringify(request) })
+      .then(r => r.json())
+      .then((j) => console.log(j))
   }
 
   useEffect(() => {
@@ -35,11 +41,11 @@ export function NewRaid() {
             <Title pb={10} order={1}>Create a new raid</Title>
             <Select
               pb={20}
-              withAsterisk={instance == ""}
+              withAsterisk={instance == undefined}
               label="Instance"
               placeholder="Select instance"
               data={instances?.map((e) => {return {value: e.id.toString(), label: e.name}})}
-              value={instance.toString()}
+              value={(instance || "").toString()}
               onChange={(v) => setInstance(Number(v))}
             />
             <Textarea

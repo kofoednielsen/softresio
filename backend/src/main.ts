@@ -1,11 +1,11 @@
 import postgres, { RowList, Row, TransactionSql, ParameterOrJSON } from "postgres"
 import process from "node:process"
-import { Sheet, Raid } from "../types/types.ts"
+import type { Sheet, Raid, CreateRaidRequest, GenericResponse } from "../types/types.ts"
 import { Hono } from "hono"
 import { getCookie, setCookie, } from 'hono/cookie'
 import * as fs from 'node:fs';
 import * as jwt from 'hono/jwt'
-import { randomUUID } from 'node:crypto'
+import { randomUUID, randomBytes } from 'node:crypto'
 
 
 var instances = {}
@@ -58,26 +58,27 @@ await sql`
 
 const app = new Hono()
 
-const get_or_create_user = async (c) => {
+const get_or_create_user = async (c): User => {
   // Try to get user from cookie
   const token = getCookie(c, 'auth')
   if (token) {
     const decoded = await jwt.verify(token, JWT_SECRET, "HS256")
     if (decoded && decoded.user_id) {
-      return decoded.user_id
+      return decoded
     }
   }
 
   // Create new user
   const user_id = randomUUID()
-  const new_token = await jwt.sign({ user_id, issuer: DOMAIN }, JWT_SECRET, "HS256")
+  const user = { user_id, issuer: DOMAIN }
+  const new_token = await jwt.sign(user, JWT_SECRET, "HS256")
   setCookie(c, 'auth', new_token, {
     secure: true,
     domain: DOMAIN,
     httpOnly: true,
     sameSite: 'Strict'
   })
-  return user_id
+  return user
 }
 
 app.get("/api/instances", async (c) => {
@@ -85,37 +86,29 @@ app.get("/api/instances", async (c) => {
   return c.json(Object.values(instances).map((e) => {return { id: e.id, name: e.name }}))
 })
 
-app.get("/api/new", async (c) => {
+app.post("/api/new", async (c) => {
+  const user = await get_or_create_user(c)
+  const body = await c.req.json() as CreateRaidRequest
+  const raid_id = randomBytes(4).toString('base64').substring(0, 5)
   const raid: Raid  = {
     sheet: {
-      id: 'kxXhe',
-      time: '2026-01-17T22:15:27.369Z',
-      sr_plus_enabled: true,
-      attendees: [
-        {
-          character: {
-            name: "Aborn",
-            class: "Warrior",
-            spec: "Protection"
-          },
-          soft_reserves: [
-            {
-              item_id: 1933,
-              sr_plus: 50,
-              comment: null,
-              user_id: "auto:01923-123123-123123-123123"
-            }
-          ]
-        }
-      ]
-    },
-    secrets: {
-      password_hash: "1234",
-      access_token: "123"
+      id: raid_id,
+      time: (new Date()).toISOString(),
+      sr_plus_enabled: body.use_sr_plus,
+      activity_log: [],
+      attendees: [],
+      admins: [ 
+        user
+      ],
+      password: {
+        hash: "yes" + body.admin_password,
+        salt: "yes"
+      }
     }
   }
   await sql`insert into raids ${sql({ raid: raid })};`
-  return c.json(raid.sheet)
+  const response: GenericResponse<Raid> = { data: raid, user }
+  return c.json(response)
 })
 
 // const [user]: [User?] = await sql`SELECT * FROM users WHERE id = ${id}`
