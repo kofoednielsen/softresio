@@ -20,6 +20,8 @@ services:
     environment:
       DATABASE_PASSWORD: "softres"
       DATABASE_USER: "softres"
+      DOMAIN: "localhost"
+      JWT_SECRET: "softres"
     depends_on:
       database:
         condition: "service_healthy"

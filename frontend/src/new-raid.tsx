@@ -1,9 +1,11 @@
-import { useState } from 'preact/hooks'
+import { useState, useEffect } from 'preact/hooks'
 import { Grid, Paper, Title, Textarea, Select, useMantineTheme, Box, Button, Switch, PasswordInput } from '@mantine/core';
 
-export function CreateRaid() {
+export function NewRaid() {
   const [count, setCount] = useState(5)
   const theme = useMantineTheme(); 
+
+  const [instances, setInstances] = useState()
 
   const [instance, setInstance] = useState("")
   const [description, setDescription] = useState("")
@@ -21,6 +23,10 @@ export function CreateRaid() {
     )
   }
 
+  useEffect(() => {
+    fetch("/api/instances").then((r) => r.json()).then((json) => setInstances(json))
+  }, [])
+
   return (
     <>
       <Grid justify="center">
@@ -32,9 +38,9 @@ export function CreateRaid() {
               withAsterisk={instance == ""}
               label="Instance"
               placeholder="Select instance"
-              data={["The Blackwing Lair", "Naxxramas", "The Molten Core" ]}
-              value={instance}
-              onChange={setInstance}
+              data={instances?.map((e) => {return {value: e.id.toString(), label: e.name}})}
+              value={instance.toString()}
+              onChange={(v) => setInstance(Number(v))}
             />
             <Textarea
               pb={20}

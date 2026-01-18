@@ -2,11 +2,41 @@ import postgres, { RowList, Row, TransactionSql, ParameterOrJSON } from "postgre
 import process from "node:process"
 import { Sheet, Raid } from "../types/types.ts"
 import { Hono } from "hono"
+import { getCookie, setCookie, } from 'hono/cookie'
+import * as fs from 'node:fs';
+import * as jwt from 'hono/jwt'
+import { randomUUID } from 'node:crypto'
+
+
+var instances = {}
+
+const getenv = (name: string): string => {
+  const value = process.env[name] 
+  if (!value) {
+    throw new Error(`Missing environment variable ${name}`)
+  }
+  return value
+}
+
+const DATABASE_USER = getenv("DATABASE_USER")
+const DATABASE_PASSWORD = getenv("DATABASE_PASSWORD")
+const DOMAIN = getenv("DOMAIN")
+const JWT_SECRET = getenv("JWT_SECRET")
+
+const instance_files = fs.glob("./instances/*.json", async (err, matches) => {
+  if (err) {
+      throw err
+  }
+  for (const file of matches) {
+    const instance = JSON.parse(await Deno.readTextFile(file))
+    instances[instance.id] = instance
+  }
+})
 
 const sql = postgres({
   host: "database",
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
+  user: DATABASE_USER,
+  password: DATABASE_PASSWORD,
 })
 
 const begin_with_timeout = (
@@ -28,16 +58,34 @@ await sql`
 
 const app = new Hono()
 
-app.get("/", async (c) => {
-  const res = await begin_with_timeout(async (tx: TransactionSql<{}>) => {
-    const res = await tx`select 6 as foo;`
-    return res
+const get_or_create_user = async (c) => {
+  // Try to get user from cookie
+  const token = getCookie(c, 'auth')
+  if (token) {
+    const decoded = await jwt.verify(token, JWT_SECRET, "HS256")
+    if (decoded && decoded.user_id) {
+      return decoded.user_id
+    }
+  }
+
+  // Create new user
+  const user_id = randomUUID()
+  const new_token = await jwt.sign({ user_id, issuer: DOMAIN }, JWT_SECRET, "HS256")
+  setCookie(c, 'auth', new_token, {
+    secure: true,
+    domain: DOMAIN,
+    httpOnly: true,
+    sameSite: 'Strict'
   })
-  console.log(res)
-  return c.text(res.foo)
+  return user_id
+}
+
+app.get("/api/instances", async (c) => {
+  console.log(await get_or_create_user(c))
+  return c.json(Object.values(instances).map((e) => {return { id: e.id, name: e.name }}))
 })
 
-app.get("/make_sample", async (c) => {
+app.get("/api/new", async (c) => {
   const raid: Raid  = {
     sheet: {
       id: 'kxXhe',
@@ -75,7 +123,7 @@ app.get("/make_sample", async (c) => {
 //   throw new Error('Not found')
 // return user // => User
 
-app.get("/:sheet_id", async (c) => {
+app.get("/api/:sheet_id", async (c) => {
   const sheet_id = c.req.param('sheet_id')
   const [raid] = await sql<{sheet: Sheet}[]>`select raid->'sheet' as sheet from raids where raid @> '{ "sheet": { "id": "${sheet_id}" } }';`
   if (!raid) {
