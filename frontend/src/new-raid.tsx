@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'preact/hooks'
+import { useNavigate } from 'react-router'
 import { Grid, Paper, Title, Textarea, Select, useMantineTheme, Box, Button, Switch, PasswordInput } from '@mantine/core';
-import type { CreateRaidRequest } from '../types/types.ts'
+import type { CreateRaidRequest, GenericResponse, CreateRaidResponse } from '../types/types.ts'
 
 export function NewRaid() {
   const [count, setCount] = useState(5)
   const theme = useMantineTheme(); 
+  const navigate = useNavigate();
 
   const [instances, setInstances] = useState()
 
@@ -26,7 +28,13 @@ export function NewRaid() {
     }
     fetch("/api/new", { method: "POST", body: JSON.stringify(request) })
       .then(r => r.json())
-      .then((j) => console.log(j))
+      .then((j: GenericResponse<CreateRaidResponse>) => {
+        if (j.error) {
+            alert(j.error)
+        } else if (j.data) {
+          navigate(`/${j.data.raid_id}`)
+        }
+      })
   }
 
   useEffect(() => {

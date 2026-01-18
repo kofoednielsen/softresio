@@ -1,6 +1,6 @@
 import postgres, { RowList, Row, TransactionSql, ParameterOrJSON } from "postgres"
 import process from "node:process"
-import type { Sheet, Raid, CreateRaidRequest, GenericResponse } from "../types/types.ts"
+import type { Sheet, Raid, CreateRaidRequest, GenericResponse, CreateRaidResponse } from "../types/types.ts"
 import { Hono } from "hono"
 import { getCookie, setCookie, } from 'hono/cookie'
 import * as fs from 'node:fs';
@@ -58,6 +58,15 @@ await sql`
 
 const app = new Hono()
 
+const generate_raid_id = (): string => {
+  const character_set = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+  let raid_id = ""
+  for (let i = 0; i < 5; i++) {
+    raid_id += character_set[Math.floor(Math.random()*character_set.length)]
+  }
+  return raid_id
+}
+
 const get_or_create_user = async (c): User => {
   // Try to get user from cookie
   const token = getCookie(c, 'auth')
@@ -89,10 +98,11 @@ app.get("/api/instances", async (c) => {
 app.post("/api/new", async (c) => {
   const user = await get_or_create_user(c)
   const body = await c.req.json() as CreateRaidRequest
-  const raid_id = randomBytes(4).toString('base64').substring(0, 5)
+  const raid_id = generate_raid_id()
   const raid: Raid  = {
     sheet: {
       id: raid_id,
+      instance_id: body.instance_id,
       time: (new Date()).toISOString(),
       sr_plus_enabled: body.use_sr_plus,
       activity_log: [],
@@ -107,23 +117,20 @@ app.post("/api/new", async (c) => {
     }
   }
   await sql`insert into raids ${sql({ raid: raid })};`
-  const response: GenericResponse<Raid> = { data: raid, user }
+  const response: GenericResponse<CreateRaidResponse> = { data: { raid_id }, user }
+
   return c.json(response)
 })
 
-// const [user]: [User?] = await sql`SELECT * FROM users WHERE id = ${id}`
-// if (!user) // => User | undefined
-//   throw new Error('Not found')
-// return user // => User
-
 app.get("/api/:sheet_id", async (c) => {
+  const user = await get_or_create_user(c)
   const sheet_id = c.req.param('sheet_id')
-  const [raid] = await sql<{sheet: Sheet}[]>`select raid->'sheet' as sheet from raids where raid @> '{ "sheet": { "id": "${sheet_id}" } }';`
+  const [raid] = await sql<Raid[]>`select raid->'sheet' as sheet from raids where raid @> ${ { sheet: { id: sheet_id } } };`
   if (!raid) {
    return c.json({ error: 'Raid not found' }, 404)
   }
-  console.log(raid)
-  return c.json(raid.sheet)
+  const response: GenericResponse<Sheet> = { data: raid.sheet, user }
+  return c.json(response)
 })
 
 Deno.serve(app.fetch)
