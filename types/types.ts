@@ -36,6 +36,7 @@ export interface Activiy {
 export interface Sheet {
   id: string
   sr_plus_enabled: boolean
+  instance_id: number
   time: string // rfc 3339
   attendees: Attendee[]
   admins: User[]
@@ -63,6 +64,7 @@ export interface CreateRaidRequest {
 export interface Item {
   id: number
   tooltip: string
+  icon: string
   name: string
   quality: 1 | 2 | 3 | 4 | 5
 }

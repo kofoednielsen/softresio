@@ -3,12 +3,15 @@
   "specifiers": {
     "npm:@mantine/core@^8.3.12": "8.3.12_@mantine+hooks@8.3.12__react@19.2.3_react@19.2.3_react-dom@19.2.3__react@19.2.3",
     "npm:@mantine/hooks@^8.3.12": "8.3.12_react@19.2.3",
+    "npm:@mantine/spotlight@^8.3.12": "8.3.12_@mantine+core@8.3.12__@mantine+hooks@8.3.12___react@19.2.3__react@19.2.3__react-dom@19.2.3___react@19.2.3_@mantine+hooks@8.3.12__react@19.2.3_react@19.2.3_react-dom@19.2.3__react@19.2.3",
     "npm:@preact/preset-vite@^2.10.2": "2.10.2_@babel+core@7.28.6_vite@7.3.1__@types+node@24.10.9__picomatch@4.0.3_preact@10.28.2_@types+node@24.10.9",
+    "npm:@tabler/icons-react@^3.36.1": "3.36.1_react@19.2.3",
     "npm:@types/node@^24.10.1": "24.10.9",
     "npm:preact@^10.27.2": "10.28.2",
     "npm:react-jss@^10.10.0": "10.10.0_react@19.2.3",
     "npm:react-router@^7.12.0": "7.12.0_react@19.2.3",
     "npm:typescript@~5.9.3": "5.9.3",
+    "npm:use-debounce@^10.1.0": "10.1.0_react@19.2.3",
     "npm:vite@^7.2.4": "7.3.1_@types+node@24.10.9_picomatch@4.0.3"
   },
   "npm": {
@@ -389,6 +392,22 @@
         "react"
       ]
     },
+    "@mantine/spotlight@8.3.12_@mantine+core@8.3.12__@mantine+hooks@8.3.12___react@19.2.3__react@19.2.3__react-dom@19.2.3___react@19.2.3_@mantine+hooks@8.3.12__react@19.2.3_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
+      "integrity": "sha512-ujj3C/Mzdt20dVDBfUt0sJ+Re/DsLWN9mgef00TchbRtSbPfGJEZDkOeytsKEeUk3BDP3gC6nFilehf+Vkzevg==",
+      "dependencies": [
+        "@mantine/core",
+        "@mantine/hooks",
+        "@mantine/store",
+        "react",
+        "react-dom"
+      ]
+    },
+    "@mantine/store@8.3.12_react@19.2.3": {
+      "integrity": "sha512-EC4eIKpm5s7neMbBrWsP6jGKLqrzHf63Ao3penYr7fn25dFXdbXZYw+IG8GYzxOC4yG61b2zTS+bpy5+vwzXpw==",
+      "dependencies": [
+        "react"
+      ]
+    },
     "@preact/preset-vite@2.10.2_@babel+core@7.28.6_vite@7.3.1__@types+node@24.10.9__picomatch@4.0.3_preact@10.28.2_@types+node@24.10.9": {
       "integrity": "sha512-K9wHlJOtkE+cGqlyQ5v9kL3Ge0Ql4LlIZjkUTL+1zf3nNdF88F9UZN6VTV8jdzBX9Fl7WSzeNMSDG7qECPmSmg==",
       "dependencies": [
@@ -559,6 +578,16 @@
       "integrity": "sha512-SPEpaL6DX4rmcXtnhdrQYgzQ5W2uW3SCJch88lB2zImhJRhIIK44fkUrgIV/Q8yUNfw5oyZ5vkeQsZLhCb06lw==",
       "os": ["win32"],
       "cpu": ["x64"]
+    },
+    "@tabler/icons-react@3.36.1_react@19.2.3": {
+      "integrity": "sha512-/8nOXeNeMoze9xY/QyEKG65wuvRhkT3q9aytaur6Gj8bYU2A98YVJyLc9MRmc5nVvpy+bRlrrwK/Ykr8WGyUWg==",
+      "dependencies": [
+        "@tabler/icons",
+        "react"
+      ]
+    },
+    "@tabler/icons@3.36.1": {
+      "integrity": "sha512-f4Jg3Fof/Vru5ioix/UO4GX+sdDsF9wQo47FbtvG+utIYYVQ/QVAC0QYgcBbAjQGfbdOh2CCf0BgiFOF9Ixtjw=="
     },
     "@types/estree@1.0.8": {
       "integrity": "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="
@@ -1166,6 +1195,12 @@
         "react"
       ]
     },
+    "use-debounce@10.1.0_react@19.2.3": {
+      "integrity": "sha512-lu87Za35V3n/MyMoEpD5zJv0k7hCn0p+V/fK2kWD+3k2u3kOCwO593UArbczg1fhfs2rqPEnHpULJ3KmGdDzvg==",
+      "dependencies": [
+        "react"
+      ]
+    },
     "use-isomorphic-layout-effect@1.2.1_react@19.2.3": {
       "integrity": "sha512-tpZZ+EX0gaghDAiFR37hj5MgY6ZN55kLiPkJsKxBMZ6GZdOSPJXiOzPM984oPYZ5AnehYx5WQp1+ME8I/P/pRA==",
       "dependencies": [
@@ -1227,12 +1262,15 @@
       "dependencies": [
         "npm:@mantine/core@^8.3.12",
         "npm:@mantine/hooks@^8.3.12",
+        "npm:@mantine/spotlight@^8.3.12",
         "npm:@preact/preset-vite@^2.10.2",
+        "npm:@tabler/icons-react@^3.36.1",
         "npm:@types/node@^24.10.1",
         "npm:preact@^10.27.2",
         "npm:react-jss@^10.10.0",
         "npm:react-router@^7.12.0",
         "npm:typescript@~5.9.3",
+        "npm:use-debounce@^10.1.0",
         "npm:vite@^7.2.4"
       ]
     }

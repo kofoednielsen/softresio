@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'preact/hooks'
 import { useNavigate } from 'react-router'
 import { Grid, Paper, Title, Textarea, Select, useMantineTheme, Box, Button, Switch, PasswordInput } from '@mantine/core';
-import type { CreateRaidRequest, GenericResponse, CreateRaidResponse } from '../types/types.ts'
+import type { Instance, CreateRaidRequest, GenericResponse, CreateRaidResponse } from '../types/types.ts'
 
-export function NewRaid() {
-  const [count, setCount] = useState(5)
-  const theme = useMantineTheme(); 
+export function CreateRaid() {
   const navigate = useNavigate();
 
-  const [instances, setInstances] = useState()
+  const [instances, setInstances] = useState<Instance[]>()
 
   const [instance, setInstance] = useState<number>()
   const [description, setDescription] = useState("")
@@ -38,15 +36,23 @@ export function NewRaid() {
   }
 
   useEffect(() => {
-    fetch("/api/instances").then((r) => r.json()).then((json) => setInstances(json))
+    fetch("/api/instances")
+      .then(r => r.json())
+      .then((j: GenericResponse<Instance[]>) => {
+        if (j.error) {
+            alert(j.error)
+        } else if (j.data) {
+          setInstances(j.data)
+        }
+      })
   }, [])
 
   return (
     <>
       <Grid gutter={0} justify="center">
         <Grid.Col span={{ base: 11, md:8, lg: 4 }}>
-          <Paper shadow="sm" p="xl">
-            <Title pb={10} order={1}>Create a new raid</Title>
+          <Paper shadow="sm" p="md">
+            <Title pb={10} order={2}>Create a new raid</Title>
             <Select
               pb={20}
               withAsterisk={instance == undefined}

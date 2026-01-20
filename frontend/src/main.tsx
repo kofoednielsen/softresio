@@ -1,9 +1,10 @@
 import { render } from 'preact'
 import './index.css'
-import { NewRaid } from './new-raid.tsx'
+import { CreateRaid } from './create-raid.tsx'
 import { Raid } from './raid.tsx'
 import '@mantine/core/styles.css';
-import { createTheme, MantineProvider } from '@mantine/core';
+import '@mantine/spotlight/styles.css';
+import { createTheme, MantineProvider, Box } from '@mantine/core';
 import { Menu } from './menu.tsx'
 import { BrowserRouter, Routes, Route } from "react-router";
 
@@ -19,7 +20,7 @@ function App() {
       <BrowserRouter>
         <Menu/>
         <Routes>
-          <Route path="/new" element={<NewRaid/>}/>
+          <Route path="/create" element={<CreateRaid/>}/>
           <Route path="/:raid_id" element={<Raid />} />;
         </Routes>
       </BrowserRouter>

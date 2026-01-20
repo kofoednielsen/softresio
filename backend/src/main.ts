@@ -1,14 +1,14 @@
-import postgres, { RowList, Row, TransactionSql, ParameterOrJSON } from "postgres"
+import postgres, { RowList, Row, TransactionSql } from "postgres"
 import process from "node:process"
-import type { Sheet, Raid, CreateRaidRequest, GenericResponse, CreateRaidResponse } from "../types/types.ts"
+import type { Sheet, Raid, CreateRaidRequest, GenericResponse, Instance } from "../types/types.ts"
 import { Hono } from "hono"
 import { getCookie, setCookie, } from 'hono/cookie'
 import * as fs from 'node:fs';
 import * as jwt from 'hono/jwt'
-import { randomUUID, randomBytes } from 'node:crypto'
+import { randomUUID } from 'node:crypto'
 
 
-var instances = {}
+var instances: Instance[] = []
 
 const getenv = (name: string): string => {
   const value = process.env[name] 
@@ -23,13 +23,13 @@ const DATABASE_PASSWORD = getenv("DATABASE_PASSWORD")
 const DOMAIN = getenv("DOMAIN")
 const JWT_SECRET = getenv("JWT_SECRET")
 
-const instance_files = fs.glob("./instances/*.json", async (err, matches) => {
+fs.glob("./instances/*.json", async (err, matches) => {
   if (err) {
       throw err
   }
   for (const file of matches) {
-    const instance = JSON.parse(await Deno.readTextFile(file))
-    instances[instance.id] = instance
+    const instance: Instance = JSON.parse(await Deno.readTextFile(file))
+    instances.push(instance)
   }
 })
 
@@ -91,8 +91,9 @@ const get_or_create_user = async (c): User => {
 }
 
 app.get("/api/instances", async (c) => {
-  console.log(await get_or_create_user(c))
-  return c.json(Object.values(instances).map((e) => {return { id: e.id, name: e.name }}))
+  const user = await get_or_create_user(c)
+  const response: GenericResponse<Instance[]> = { data: instances, user }
+  return c.json(response)
 })
 
 app.post("/api/new", async (c) => {
