@@ -149,7 +149,7 @@ const ItemList = memo(({ items }: { items: Item[] }) => {
       {items.map((item) => (
         <Box pb={10} key={item.id}>
           <Stack>
-            <Group justify="space-between">
+            <Group justify="space-between" wrap="nowrap">
               <HoverCard>
                 <HoverCard.Target>
                   <Group wrap="nowrap">
@@ -162,7 +162,7 @@ const ItemList = memo(({ items }: { items: Item[] }) => {
                       w="auto"
                       src={`https://database.turtlecraft.gg/images/icons/medium/${item.icon}`}
                     />
-                    <Title className={`q${item.quality}`} order={6}>
+                    <Title className={`q${item.quality}`} order={6} lineClamp={1}>
                       {item.name}
                     </Title>
                   </Group>
