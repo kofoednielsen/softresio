@@ -105,8 +105,16 @@ export function ItemSelector({ items }: { items: Item[] }) {
           </Button>
         </Stack>
       </Paper>
-      <Modal opened={searchOpen} onClose={() => setSearchOpen(false)} title="Items" size="auto" mah="100vh">
-        <Stack>
+      <Modal
+        opened={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        title="Items"
+        size="auto"
+        styles={{
+          body: { height: "80vh", display: "flex", flexDirection: "column" },
+        }}
+      >
+        <Stack h="100%" gap="md">
           <Group grow>
             <Select
               placeholder="Slot"
