@@ -3,25 +3,26 @@ import {
   Burger,
   Button,
   Drawer,
-  Stack,
   Group,
+  Image,
   ScrollArea,
-  Image
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+  Stack,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import logo from "../public/logo-orange.png";
-import classes from './menu.module.css';
+import classes from "./menu.module.css";
 import { NavLink } from "react-router";
 
 export function Menu() {
-  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
+  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
+    useDisclosure(false);
 
   return (
     <Box pb={20}>
       <header className={classes.header}>
         <Group justify="space-between" h="100%">
           <Group>
-          <Image src={logo} h={40} w="auto" />
+            <Image src={logo} h={40} w="auto" />
             <Group visibleFrom="sm">
               <NavLink to="/raids">
                 <Button variant="default">
@@ -36,7 +37,12 @@ export function Menu() {
             </Group>
           </Group>
 
-          <Burger size="sm" opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
+          <Burger
+            size="sm"
+            opened={drawerOpened}
+            onClick={toggleDrawer}
+            hiddenFrom="sm"
+          />
         </Group>
       </header>
 
@@ -50,16 +56,16 @@ export function Menu() {
       >
         <ScrollArea h="calc(100vh - 80px" mx="-md">
           <Stack justify="center" grow pb="xl" px="md">
-              <NavLink to="/raids">
-                <Button fullWidth variant="default" onClick={toggleDrawer}>
-                  My raids
-                </Button>
-              </NavLink>
-              <NavLink to="/create">
-                <Button fullWidth onClick={toggleDrawer}>
-                  Create raid
-                </Button>
-              </NavLink>
+            <NavLink to="/raids">
+              <Button fullWidth variant="default" onClick={toggleDrawer}>
+                My raids
+              </Button>
+            </NavLink>
+            <NavLink to="/create">
+              <Button fullWidth onClick={toggleDrawer}>
+                Create raid
+              </Button>
+            </NavLink>
           </Stack>
         </ScrollArea>
       </Drawer>
