@@ -73,7 +73,7 @@ function ItemComponent({
         <HoverCard.Target>
           <Group wrap="nowrap">
             <Image
-              style={{ filter: "drop-shadow(0px 0px 2px)" }}
+              style={{ filter: "drop-shadow(0px 0px 2px)", border: "1px solid rgba(255,255,255,0.3)" }}
               className={`q${item.quality}`}
               radius="sm"
               h={20}
