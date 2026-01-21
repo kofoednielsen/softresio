@@ -13,6 +13,7 @@
     "npm:react-window@^2.2.5": "2.2.5_react@19.2.3_react-dom@19.2.3__react@19.2.3",
     "npm:typescript@~5.9.3": "5.9.3",
     "npm:use-debounce@^10.1.0": "10.1.0_react@19.2.3",
+    "npm:use-long-press@^3.3.0": "3.3.0_react@19.2.3",
     "npm:vite@^7.2.4": "7.3.1_@types+node@24.10.9_picomatch@4.0.3"
   },
   "npm": {
@@ -1222,6 +1223,12 @@
         "use-isomorphic-layout-effect"
       ]
     },
+    "use-long-press@3.3.0_react@19.2.3": {
+      "integrity": "sha512-Yedz46ILxsb1BTS6kUzpV/wyEZPUlJDq+8Oat0LP1eOZQHbS887baJHJbIGENqCo8wTKNxmoTHLdY8lU/e+wvw==",
+      "dependencies": [
+        "react"
+      ]
+    },
     "use-sidecar@1.1.3_react@19.2.3": {
       "integrity": "sha512-Fedw0aZvkhynoPYlA5WXrMCAMm+nSWdZt6lzJQ7Ok8S6Q+VsHmHpRWndVRJ8Be0ZbkfPc5LRYH+5XrzXcEeLRQ==",
       "dependencies": [
@@ -1280,6 +1287,7 @@
         "npm:react-window@^2.2.5",
         "npm:typescript@~5.9.3",
         "npm:use-debounce@^10.1.0",
+        "npm:use-long-press@^3.3.0",
         "npm:vite@^7.2.4"
       ]
     }

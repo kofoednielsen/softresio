@@ -2,6 +2,11 @@ body {
   background-color: var(--mantine-color-dark-8) !important;
 }
 
+.item-list-element {
+  user-select: none;
+  cursor: pointer;
+}
+
 .item-list-element:hover {
   background-color: var(--mantine-color-default-hover);
 {

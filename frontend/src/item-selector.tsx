@@ -27,7 +27,10 @@ import {
   Stack,
   TextInput,
   Title,
+  Tooltip,
 } from "@mantine/core";
+import { useClickOutside, useHover, useToggle } from "@mantine/hooks";
+import { useLongPress } from "use-long-press";
 import { classes, classIcons } from "./classes.ts";
 import type { SelectProps } from "@mantine/core";
 import { useDebounce } from "use-debounce";
@@ -36,6 +39,8 @@ import type { SpotlightActionData } from "@mantine/spotlight";
 import "./tooltip.css";
 import { List } from "react-window";
 import { type RowComponentProps } from "react-window";
+
+const isTouchScreen = window.matchMedia("(pointer: coarse)").matches;
 
 const ClassIcon = ({ iconId }: { iconId: string }) => {
   return (
@@ -60,52 +65,68 @@ const renderSelectOption: SelectProps["renderOption"] = (
 function ItemComponent({
   index,
   items,
+  selectedItems,
+  onItemClick,
+  onItemLongClick,
+  showTooltipItemId,
   style,
 }: RowComponentProps<{
+  onItemClick: (item_id: number) => void;
+  onItemLongClick: (item_id: number) => void;
+  selectedItems: number[];
   items: Item[];
+  showTooltipItemId: number | undefined;
 }>) {
+  const { hovered, ref } = useHover();
+  const handlers = useLongPress(() => onItemLongClick(item.id));
+
   const item = items[index];
 
   return (
-    <Group
-      style={style}
-      justify="space-between"
-      wrap="nowrap"
-      className="item-list-element"
-      p={8}
-      key={item.id}
-      mr={10}
+    <Tooltip
+      m={0}
+      p={0}
+      opened={showTooltipItemId == item.id || (!isTouchScreen && hovered)}
+      label={
+        <div
+          class="tt-wrap"
+          dangerouslySetInnerHTML={{ __html: item.tooltip }}
+        />
+      }
     >
-      <HoverCard>
-        <HoverCard.Target>
-          <Group wrap="nowrap">
-            <Image
-              style={{
-                filter: "drop-shadow(0px 0px 2px)",
-                border: "1px solid rgba(255,255,255,0.3)",
-              }}
-              className={`q${item.quality}`}
-              radius="sm"
-              h={20}
-              w="auto"
-              src={`https://database.turtlecraft.gg/images/icons/medium/${item.icon}`}
-            />
-            <Title className={`q${item.quality}`} order={6} lineClamp={1}>
-              {item.name}
-            </Title>
-          </Group>
-        </HoverCard.Target>
-        <HoverCard.Dropdown style={{ margin: 0, padding: 0 }}>
-          <div
-            class="tt-wrap"
-            dangerouslySetInnerHTML={{ __html: item.tooltip }}
+      <Group
+        {...handlers()}
+        ref={ref}
+        style={style}
+        justify="space-between"
+        wrap="nowrap"
+        className="item-list-element"
+        onClick={() => onItemClick(item.id)}
+        p={8}
+        key={item.id}
+        mr={10}
+      >
+        <Group wrap="nowrap">
+          <Image
+            style={{
+              filter: "drop-shadow(0px 0px 2px)",
+              border: "1px solid rgba(255,255,255,0.3)",
+            }}
+            className={`q${item.quality}`}
+            radius="sm"
+            h={24}
+            w="auto"
+            src={`https://database.turtlecraft.gg/images/icons/medium/${item.icon}`}
           />
-        </HoverCard.Dropdown>
-      </HoverCard>
-      <Group>
-        <Checkbox size="md" />
+          <Title className={`q${item.quality}`} order={6} lineClamp={1}>
+            {item.name}
+          </Title>
+        </Group>
+        <Group>
+          <Checkbox checked={selectedItems.includes(item.id)} size="md" />
+        </Group>
       </Group>
-    </Group>
+    </Tooltip>
   );
 }
 
@@ -118,6 +139,21 @@ export function ItemSelector({ items }: { items: Item[] }) {
   const [selectedSpec, setSelectedSpec] = useState<string | null>();
   const [characterName, setCharacterName] = useState("");
   const [filteredItems, setFilteredItems] = useState(items);
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [showTooltipItemId, setShowTooltipItemId] = useState<number | null>();
+
+  const onItemLongClick = (item_id: number) => setShowTooltipItemId(item_id);
+
+  const onItemClick = (item_id: number) => {
+    if (!showTooltipItemId || showTooltipItemId == item_id) {
+      if (selectedItems.includes(item_id)) {
+        setSelectedItems(selectedItems.filter((i) => i !== item_id));
+      } else {
+        setSelectedItems([...selectedItems, item_id]);
+      }
+    }
+    setShowTooltipItemId(undefined);
+  };
 
   useEffect(() => {
     setFilteredItems(
@@ -143,7 +179,7 @@ export function ItemSelector({ items }: { items: Item[] }) {
             label="Character name"
             placeholder="Character name"
           />
-          <Group grow>
+          <Group>
             <Select
               placeholder="Class"
               searchable
@@ -218,55 +254,16 @@ export function ItemSelector({ items }: { items: Item[] }) {
             rowComponent={ItemComponent}
             rowCount={filteredItems.length}
             rowHeight={40}
-            rowProps={{ items: filteredItems }}
+            rowProps={{
+              items: filteredItems,
+              onItemClick,
+              selectedItems,
+              showTooltipItemId,
+              onItemLongClick,
+            }}
           />
         </Stack>
       </Modal>
     </>
   );
 }
-
-const ItemList = memo(({ items }: { items: Item[] }) => {
-  return (
-    <ScrollArea>
-      {items.map((item) => (
-        <Box className="item-list-element" p={8} key={item.id} mr={10}>
-          <Stack>
-            <Group justify="space-between" wrap="nowrap">
-              <HoverCard>
-                <HoverCard.Target>
-                  <Group wrap="nowrap">
-                    <Image
-                      style={{ filter: "drop-shadow(0px 0px 2px)" }}
-                      className={`q${item.quality}`}
-                      radius="sm"
-                      h={20}
-                      w="auto"
-                      src={`https://database.turtlecraft.gg/images/icons/medium/${item.icon}`}
-                    />
-                    <Title
-                      className={`q${item.quality}`}
-                      order={6}
-                      lineClamp={1}
-                    >
-                      {item.name}
-                    </Title>
-                  </Group>
-                </HoverCard.Target>
-                <HoverCard.Dropdown style={{ margin: 0, padding: 0 }}>
-                  <div
-                    class="tt-wrap"
-                    dangerouslySetInnerHTML={{ __html: item.tooltip }}
-                  />
-                </HoverCard.Dropdown>
-              </HoverCard>
-              <Group>
-                <Checkbox size="md" />
-              </Group>
-            </Group>
-          </Stack>
-        </Box>
-      ))}
-    </ScrollArea>
-  );
-});
