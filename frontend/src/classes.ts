@@ -2,49 +2,49 @@ export const classes = {
   "Warrior": [
     "Arms",
     "Fury",
-    "Protection"
+    "Protection",
   ],
   "Priest": [
     "Discipline",
     "Holy",
-    "Shadow"
+    "Shadow",
   ],
   "Mage": [
     "Arcane",
     "Fire",
-    "Frost"
+    "Frost",
   ],
   "Rogue": [
     "Assassination",
     "Combat",
-    "Subtlety"
+    "Subtlety",
   ],
   "Druid": [
     "Balance",
     "Feral Combat",
-    "Restoration"
+    "Restoration",
   ],
   "Paladin": [
     "Holy",
     "Protection",
-    "Retribution"
+    "Retribution",
   ],
   "Shaman": [
     "Elemental",
     "Enhancement",
-    "Restoration"
+    "Restoration",
   ],
   "Warlock": [
     "Affliction",
     "Demonology",
-    "Destruction"
+    "Destruction",
   ],
   "Hunter": [
     "Beast Mastery",
     "Marksmanship",
-    "Survival"
-  ]
-}
+    "Survival",
+  ],
+};
 
 export const classIcons = {
   "Warrior": "class_warrior.png",
@@ -82,5 +82,5 @@ export const classIcons = {
   "Druid": "class_druid.png",
   "DruidBalance": "spell_nature_starfall.png",
   "DruidFeralCombat": "ability_racial_bearform.png",
-  "DruidRestoration": "spell_nature_healingtouch.png"
-}
+  "DruidRestoration": "spell_nature_healingtouch.png",
+};

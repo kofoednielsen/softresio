@@ -68,13 +68,13 @@ export function Raid() {
             <Paper shadow="sm" p="xl">
               <Title>{instance.name}</Title>
             </Paper>
-            <br/>
+            <br />
             <ItemSelector items={instance.items} />
-            <br/>
+            <br />
             <Paper shadow="sm" p="xl">
               SR list coming soon! (tm)
             </Paper>
-            <br/>
+            <br />
           </Grid.Col>
         </Grid>
       </>

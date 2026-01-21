@@ -1,44 +1,43 @@
-import { useEffect, useMemo, useState } from "preact/hooks"
-import { memo } from "preact/compat"
-import type { Item } from "../types/types.ts"
+import { useEffect, useMemo, useState } from "preact/hooks";
+import { memo } from "preact/compat";
+import type { Item } from "../types/types.ts";
 import {
   IconChevronDown,
   IconChevronUp,
   IconSearch,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 import {
-  Flex,
   ActionIcon,
   Box,
   Button,
   Checkbox,
+  CloseButton,
   Collapse,
   Divider,
+  Flex,
   Group,
   HoverCard,
   Image,
   Input,
+  Modal,
   MultiSelect,
   Paper,
+  ScrollArea,
+  Select,
   Stack,
   TextInput,
   Title,
-  Select,
-  ScrollArea,
-  CloseButton,
-  Modal
-} from "@mantine/core"
-import { classes, classIcons } from './classes.ts'
-import type { SelectProps } from "@mantine/core"
-import { useDebounce } from "use-debounce"
-import { Spotlight, spotlight } from "@mantine/spotlight"
-import type { SpotlightActionData } from "@mantine/spotlight"
-import "./tooltip.css"
-import { List } from "react-window"
-import { type RowComponentProps } from "react-window"
+} from "@mantine/core";
+import { classes, classIcons } from "./classes.ts";
+import type { SelectProps } from "@mantine/core";
+import { useDebounce } from "use-debounce";
+import { Spotlight, spotlight } from "@mantine/spotlight";
+import type { SpotlightActionData } from "@mantine/spotlight";
+import "./tooltip.css";
+import { List } from "react-window";
+import { type RowComponentProps } from "react-window";
 
-
-const ClassIcon = ({iconId}: {iconId: string}) => {
+const ClassIcon = ({ iconId }: { iconId: string }) => {
   return (
     <Image
       radius="sm"
@@ -46,34 +45,45 @@ const ClassIcon = ({iconId}: {iconId: string}) => {
       w="auto"
       src={`https://talents.turtlecraft.gg/icons/${classIcons[iconId]}`}
     />
-  )
-}
+  );
+};
 
-const renderSelectOption: SelectProps['renderOption'] = ({ option, checked }) => (
+const renderSelectOption: SelectProps["renderOption"] = (
+  { option, checked },
+) => (
   <Group gap="xs">
-    <ClassIcon iconId={option.value}/>
+    <ClassIcon iconId={option.value} />
     {option.label}
   </Group>
 );
 
- 
-
 function ItemComponent({
   index,
   items,
-  style
+  style,
 }: RowComponentProps<{
   items: Item[];
 }>) {
-  const item = items[index]
-    
+  const item = items[index];
+
   return (
-    <Group style={style} justify="space-between" wrap="nowrap" className="item-list-element" p={8} key={item.id} mr={10}>
+    <Group
+      style={style}
+      justify="space-between"
+      wrap="nowrap"
+      className="item-list-element"
+      p={8}
+      key={item.id}
+      mr={10}
+    >
       <HoverCard>
         <HoverCard.Target>
           <Group wrap="nowrap">
             <Image
-              style={{ filter: "drop-shadow(0px 0px 2px)", border: "1px solid rgba(255,255,255,0.3)" }}
+              style={{
+                filter: "drop-shadow(0px 0px 2px)",
+                border: "1px solid rgba(255,255,255,0.3)",
+              }}
               className={`q${item.quality}`}
               radius="sm"
               h={20}
@@ -101,7 +111,7 @@ function ItemComponent({
 
 export function ItemSelector({ items }: { items: Item[] }) {
   const [unfolded, setUnfolded] = useState<number[]>([]);
-  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 500);
   const [selectedClass, setSelectedClass] = useState<string | null>();
@@ -110,12 +120,16 @@ export function ItemSelector({ items }: { items: Item[] }) {
   const [filteredItems, setFilteredItems] = useState(items);
 
   useEffect(() => {
-    setFilteredItems(items.filter((item) => item.name.toLowerCase().includes(debouncedSearch?.toLowerCase() || "")));
+    setFilteredItems(
+      items.filter((item) =>
+        item.name.toLowerCase().includes(debouncedSearch?.toLowerCase() || "")
+      ),
+    );
   }, [debouncedSearch]);
 
   useEffect(() => {
-	console.log(filteredItems.length)
-  }, [filteredItems])
+    console.log(filteredItems.length);
+  }, [filteredItems]);
 
   return (
     <>
@@ -134,20 +148,30 @@ export function ItemSelector({ items }: { items: Item[] }) {
               placeholder="Class"
               searchable
               value={selectedClass}
-              onChange={(value) => { setSelectedSpec(null); setSelectedClass(value)}}
+              onChange={(value) => {
+                setSelectedSpec(null);
+                setSelectedClass(value);
+              }}
               data={Object.keys(classes)}
               label="Class"
               renderOption={renderSelectOption}
-              leftSection={selectedClass ? <ClassIcon iconId={selectedClass}/> : undefined}
+              leftSection={selectedClass
+                ? <ClassIcon iconId={selectedClass} />
+                : undefined}
             />
             <Select
               placeholder="Specialization"
               disabled={!selectedClass}
               onChange={setSelectedSpec}
               value={selectedSpec}
-              data={classes[selectedClass]?.map((spec) => ({value: (selectedClass+spec).replace(" ", ""), label: spec}))}
+              data={classes[selectedClass]?.map((spec) => ({
+                value: (selectedClass + spec).replace(" ", ""),
+                label: spec,
+              }))}
               renderOption={renderSelectOption}
-              leftSection={selectedSpec ? <ClassIcon iconId={selectedSpec}/> : undefined}
+              leftSection={selectedSpec
+                ? <ClassIcon iconId={selectedSpec} />
+                : undefined}
               label="Specialization"
             />
           </Group>
@@ -174,7 +198,7 @@ export function ItemSelector({ items }: { items: Item[] }) {
               leftSection={<IconSearch size={16} />}
               placeholder="Search.."
             />
-            <CloseButton onClick={() => setSearchOpen(false)}/>
+            <CloseButton onClick={() => setSearchOpen(false)} />
           </Group>
           <Group grow>
             <Select
@@ -194,14 +218,13 @@ export function ItemSelector({ items }: { items: Item[] }) {
             rowComponent={ItemComponent}
             rowCount={filteredItems.length}
             rowHeight={40}
-            rowProps={{items: filteredItems}}
+            rowProps={{ items: filteredItems }}
           />
         </Stack>
       </Modal>
     </>
   );
 }
-
 
 const ItemList = memo(({ items }: { items: Item[] }) => {
   return (
@@ -221,7 +244,11 @@ const ItemList = memo(({ items }: { items: Item[] }) => {
                       w="auto"
                       src={`https://database.turtlecraft.gg/images/icons/medium/${item.icon}`}
                     />
-                    <Title className={`q${item.quality}`} order={6} lineClamp={1}>
+                    <Title
+                      className={`q${item.quality}`}
+                      order={6}
+                      lineClamp={1}
+                    >
                       {item.name}
                     </Title>
                   </Group>
