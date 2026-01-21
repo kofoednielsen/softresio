@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "npm:@mantine/core@^8.3.12": "8.3.13_@mantine+hooks@8.3.13__react@19.2.3_react@19.2.3_react-dom@19.2.3__react@19.2.3",
+    "npm:@mantine/dates@^8.3.13": "8.3.13_@mantine+core@8.3.13__@mantine+hooks@8.3.13___react@19.2.3__react@19.2.3__react-dom@19.2.3___react@19.2.3_@mantine+hooks@8.3.13__react@19.2.3_dayjs@1.11.19_react@19.2.3_react-dom@19.2.3__react@19.2.3",
     "npm:@mantine/hooks@^8.3.12": "8.3.13_react@19.2.3",
     "npm:@mantine/spotlight@^8.3.12": "8.3.12_@mantine+core@8.3.13__@mantine+hooks@8.3.13___react@19.2.3__react@19.2.3__react-dom@19.2.3___react@19.2.3_@mantine+hooks@8.3.13__react@19.2.3_react@19.2.3_react-dom@19.2.3__react@19.2.3",
     "npm:@preact/preset-vite@^2.10.2": "2.10.2_@babel+core@7.28.6_vite@7.3.1__@types+node@24.10.9__picomatch@4.0.3_preact@10.28.2_@types+node@24.10.9",
@@ -388,6 +389,17 @@
         "type-fest"
       ]
     },
+    "@mantine/dates@8.3.13_@mantine+core@8.3.13__@mantine+hooks@8.3.13___react@19.2.3__react@19.2.3__react-dom@19.2.3___react@19.2.3_@mantine+hooks@8.3.13__react@19.2.3_dayjs@1.11.19_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
+      "integrity": "sha512-Fk3k9oUENQQwU2cb1Ir2Q3J17emkYvW8xWaAF3nZC0PEF4KddY/p8bhF4NCxhsRjkvtEJiaAWlEq+6LF6hNxDA==",
+      "dependencies": [
+        "@mantine/core",
+        "@mantine/hooks",
+        "clsx",
+        "dayjs",
+        "react",
+        "react-dom"
+      ]
+    },
     "@mantine/hooks@8.3.13_react@19.2.3": {
       "integrity": "sha512-7YMbMW/tR9E8m/9DbBW01+3RNApm2mE/JbRKXf9s9+KxgbjQvq0FYGWV8Y4+Sjz48AO4vtWk2qBriUTgBMKAyg==",
       "dependencies": [
@@ -666,6 +678,9 @@
     },
     "csstype@3.2.3": {
       "integrity": "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ=="
+    },
+    "dayjs@1.11.19": {
+      "integrity": "sha512-t5EcLVS6QPBNqM2z8fakk/NKel+Xzshgt8FFKAn+qwlD1pzZWxh0nVCrvFK7ZDb6XucZeF9z8C7CBWTRIVApAw=="
     },
     "debug@4.4.3": {
       "integrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
@@ -1276,6 +1291,7 @@
     "packageJson": {
       "dependencies": [
         "npm:@mantine/core@^8.3.12",
+        "npm:@mantine/dates@^8.3.13",
         "npm:@mantine/hooks@^8.3.12",
         "npm:@mantine/spotlight@^8.3.12",
         "npm:@preact/preset-vite@^2.10.2",

@@ -1,3 +1,4 @@
+export type SrCount = 1 | 2 | 3 | 4;
 export interface Character {
   name: string
   class: string
@@ -42,6 +43,7 @@ export interface Sheet {
   admins: User[]
   password: Password
   activity_log: Activiy[]
+  sr_count: SrCount;
 }
 
 export interface Raid {
@@ -59,6 +61,7 @@ export interface CreateRaidRequest {
   description: string,
   use_sr_plus: boolean,
   admin_password: string
+  sr_count: SrCount;
 }
 
 export interface Item {
