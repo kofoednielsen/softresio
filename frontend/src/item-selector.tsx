@@ -18,7 +18,9 @@ import {
   Modal,
   Paper,
   Select,
+  Skeleton,
   Stack,
+  Text,
   TextInput,
   Title,
   Tooltip,
@@ -239,6 +241,7 @@ export function ItemSelector(
         <Stack>
           <Title order={2}>Choose your SR</Title>
           <TextInput
+            withAsterisk={!characterName}
             value={characterName}
             onChange={(event) => setCharacterName(event.currentTarget.value)}
             label="Character name"
@@ -248,6 +251,7 @@ export function ItemSelector(
             <Select
               placeholder="Class"
               searchable
+              withAsterisk={!selectedClass}
               value={selectedClass}
               onChange={(value) => {
                 setSelectedSpec(null)
@@ -262,6 +266,7 @@ export function ItemSelector(
             />
             <Select
               placeholder="Specialization"
+              withAsterisk={!selectedSpec}
               disabled={!selectedClass}
               onChange={setSelectedSpec}
               value={selectedSpec}
@@ -273,32 +278,57 @@ export function ItemSelector(
               label="Specialization"
             />
           </Group>
-          <Paper
-            shadow="sm"
-            p="md"
-            style={{ backgroundColor: "var(--mantine-color-dark-8" }}
-          >
-            <Button
-              w="100%"
-              onClick={() => setSearchOpen(true)}
-              variant={selectedItemIds.length < sheet.srCount ? "" : "default"}
-              mb={10}
+          <Stack gap={0}>
+            <Group mb={3} p={0} gap={3}>
+              <Text size="sm">
+                Items
+              </Text>
+              <Text
+                size="sm"
+                c="var(--mantine-color-error)"
+                hidden={selectedItemIds.length == sheet.srCount}
+              >
+                *
+              </Text>
+            </Group>
+            <Paper
+              shadow="sm"
+              p="md"
+              style={{ backgroundColor: "var(--mantine-color-dark-8" }}
             >
-              Select item(s)
-            </Button>
-            <Stack gap={0}>
-              {selectedItemIds.map((itemId) => (
-                <ItemComponent
-                  item={items.filter((i) => i.id == itemId)[0]}
-                  onItemClick={onItemClick}
-                  deleteMode
-                  selectedItemIds={selectedItemIds}
-                  showTooltipItemId={showTooltipItemId}
-                  onItemLongClick={onItemLongClick}
-                />
-              ))}
-            </Stack>
-          </Paper>
+              <Button
+                w="100%"
+                onClick={() => setSearchOpen(true)}
+                variant={selectedItemIds.length < sheet.srCount
+                  ? ""
+                  : "default"}
+                mb={10}
+              >
+                Select item(s)
+              </Button>
+              <Stack gap={0} mih={40 * sheet.srCount} justify="bottom">
+                {selectedItemIds.map((itemId) => (
+                  <ItemComponent
+                    item={items.filter((i) => i.id == itemId)[0]}
+                    onItemClick={onItemClick}
+                    deleteMode
+                    selectedItemIds={selectedItemIds}
+                    showTooltipItemId={showTooltipItemId}
+                    onItemLongClick={onItemLongClick}
+                  />
+                ))}
+                {Array.from({ length: sheet.srCount - selectedItemIds.length })
+                  .map(() => <Skeleton h={40} />)}
+                <Text
+                  size="sm"
+                  c="var(--mantine-color-error)"
+                  hidden={selectedItemIds.length <= sheet.srCount}
+                >
+                  You must SR exactly {sheet.srCount} item(s)
+                </Text>
+              </Stack>
+            </Paper>
+          </Stack>
           <Button
             disabled={!selectedClass || !selectedSpec || !characterName ||
               selectedItemIds.length != sheet.srCount}
