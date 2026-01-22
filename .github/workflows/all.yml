@@ -1,4 +1,4 @@
-name: Checks
+name: All
 on:
   push:
     branches: main
@@ -46,18 +46,13 @@ jobs:
         run: "deno fmt --check src"
       - name: Types
         run: "deno check src"
-
-name: Build and Push
-on:
-  push:
-    branches: main
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-jobs:
   build-and-push-image:
-    needs: [Checks]
+    if: github.ref == 'refs/heads/main'
+    needs: [frontend, backend]
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
     permissions:
       contents: read
       packages: write
@@ -78,4 +73,3 @@ jobs:
         with:
           context: .
           push: true
-
