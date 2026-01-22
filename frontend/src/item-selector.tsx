@@ -32,6 +32,8 @@ import {
   ScrollArea,
   Select,
   Stack,
+  Table,
+  Text,
   TextInput,
   Title,
   Tooltip,
@@ -207,6 +209,35 @@ export function ItemSelector(
     console.log(filteredItems.length);
   }, [filteredItems]);
 
+  const tableContents = sheet.attendees.flatMap((a) =>
+    a.soft_reserves.map((sr) => {
+      return {
+        characterName: a.character.name,
+        spec: a.character.spec,
+        itemId: sr.item_id,
+      };
+    })
+  );
+  const rows = tableContents.map((sr) => (
+    <Table.Tr key={sr.characterName + sr.itemId}>
+      <Table.Td>{sr.characterName}</Table.Td>
+      <Table.Td>{sr.spec}</Table.Td>
+      <Table.Td>
+        <ItemComponent
+          items={items}
+          index={0}
+          itemId={sr.itemId}
+          onItemClick={() =>
+            console.log("hej")}
+          deleteMode
+          selectedItems={selectedItems}
+          showTooltipItemId={showTooltipItemId}
+          onItemLongClick={onItemLongClick}
+        />
+      </Table.Td>
+    </Table.Tr>
+  ));
+
   return (
     <>
       <Paper shadow="sm" p="md">
@@ -336,6 +367,18 @@ export function ItemSelector(
           />
         </Stack>
       </Modal>
+      <Paper shadow="sm" p="md">
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Character Name</Table.Th>
+              <Table.Th>Specialization</Table.Th>
+              <Table.Th>Reserved Item</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>{rows}</Table.Tbody>
+        </Table>
+      </Paper>
     </>
   );
 }

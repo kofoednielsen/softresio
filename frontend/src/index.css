@@ -2,6 +2,14 @@ body {
   background-color: var(--mantine-color-dark-8) !important;
 }
 
+.mantine-Table-tr {
+  border-radius: 5px;
+}
+
+.mantine-Table-tr:hover {
+  background-color: var(--mantine-color-default-hover);
+}
+
 .item-list-element {
   user-select: none;
   cursor: pointer;
