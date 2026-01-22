@@ -306,7 +306,7 @@ export function ItemSelector(
               >
                 Select item(s)
               </Button>
-              <Stack gap={0} mih={40 * sheet.srCount} justify="bottom">
+              <Stack gap="sm" mih={40 * sheet.srCount} justify="bottom">
                 {selectedItemIds.map((itemId) => (
                   <ItemComponent
                     item={items.filter((i) => i.id == itemId)[0]}
@@ -318,7 +318,7 @@ export function ItemSelector(
                   />
                 ))}
                 {Array.from({ length: sheet.srCount - selectedItemIds.length })
-                  .map(() => <Skeleton h={40} />)}
+                  .map(() => <Skeleton h={44} />)}
                 <Text
                   size="sm"
                   c="var(--mantine-color-error)"
