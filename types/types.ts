@@ -1,7 +1,10 @@
-export type SrCount = 1 | 2 | 3 | 4;
-export interface Character {
-  name: string;
-  class:
+export interface OnChangeEvent {
+    currentTarget: {
+        value: string
+    }
+}
+
+export type Class = 
     | "Warrior"
     | "Mage"
     | "Paladin"
@@ -10,23 +13,26 @@ export interface Character {
     | "Warlock"
     | "Rogue"
     | "Shaman";
+export interface Character {
+  name: string;
+  class: Class;
   spec: string;
 }
 
 export interface User {
-  user_id: string; // uuidv4
+  userId: string; // uuidv4
   issuer: string;
 }
 
 export interface SoftReserve {
-  item_id: number;
-  sr_plus: number | null;
+  itemId: number;
+  srPlus: number | null;
   comment: string | null;
 }
 
 export interface Attendee {
   character: Character;
-  soft_reserves: SoftReserve[];
+  softReserves: SoftReserve[];
   user: User;
 }
 
@@ -44,19 +50,19 @@ export interface Activiy {
     | "SRUpdated"
     | "RaidCreated"
     | "RaidUpdated";
-  soft_reserve: SoftReserve;
+  softReserve: SoftReserve;
 }
 
 export interface Sheet {
-  id: string;
-  sr_plus_enabled: boolean;
-  instance_id: number;
+  raidId: string;
+  useSrPlus: boolean;
+  instanceId: number;
   time: string; // rfc 3339
   attendees: Attendee[];
   admins: User[];
   password: Password;
-  activity_log: Activiy[];
-  sr_count: SrCount;
+  activityLog: Activiy[];
+  srCount: number;
 }
 
 export interface Raid {
@@ -70,22 +76,22 @@ export interface GenericResponse<T> {
 }
 
 export interface CreateRaidRequest {
-  instance_id: number;
+  instanceId: number;
   description: string;
-  use_sr_plus: boolean;
-  admin_password: string;
+  useSrPlus: boolean;
+  adminPassword: string;
   time: string; //rfc 3339
-  sr_count: SrCount;
+  srCount: number;
 }
 
 export interface CreateRaidResponse {
-  raid_id: string;
+  raidId: string;
 }
 
 export interface CreateSrRequest {
-  raid_id: string;
+  raidId: string;
   character: Character;
-  selected_item_ids: number[];
+  selectedItemIds: number[];
 }
 
 export interface Item {
