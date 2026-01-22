@@ -13,7 +13,7 @@ import type {
   User,
 } from "../types/types.ts"
 import { Hono } from "hono"
-import { serveStatic } from 'hono/deno'
+import { serveStatic } from "hono/deno"
 import type { Context } from "hono"
 import { getCookie, setCookie } from "hono/cookie"
 import * as fs from "node:fs"
@@ -105,7 +105,7 @@ const getOrCreateUser = async (c: Context): Promise<User> => {
   return user
 }
 
-app.use('*', serveStatic({ root: './static' }))
+app.use("*", serveStatic({ root: "./static" }))
 
 app.get("/api/instances", async (c) => {
   const user = await getOrCreateUser(c)
