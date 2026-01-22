@@ -2,32 +2,25 @@ import { useEffect, useState } from "react";
 import type {
   GenericResponse,
   Instance,
-  Raid,
   Sheet,
   User,
 } from "../types/types.ts";
 import { useParams } from "react-router";
 import { ItemSelector } from "./item-selector.tsx";
 import {
-  Badge,
-  Button,
-  Card,
   Grid,
-  Group,
-  Image,
   Paper,
-  Text,
   Title,
 } from "@mantine/core";
 
-export function Raid() {
+export const Raid = () => {
   const params = useParams();
   const [sheet, setSheet] = useState<Sheet>();
-  const [user, setUser] = useState<User>();
+  const [_user, setUser] = useState<User>();
   const [instance, setInstance] = useState<Instance>();
 
   useEffect(() => {
-    fetch(`/api/${params.raid_id}`).then((r) => r.json()).then(
+    fetch(`/api/raid/${params.raid_id}`).then((r) => r.json()).then(
       (j: GenericResponse<Sheet>) => {
         if (j.error) {
           alert(j.error);
@@ -48,7 +41,7 @@ export function Raid() {
             alert(j.error);
           } else if (j.data) {
             const matches = j.data.filter((i: Instance) =>
-              i.id == sheet.instance_id
+              i.id == sheet.instanceId
             );
             if (matches.length == 1) {
               setInstance(matches[0]);

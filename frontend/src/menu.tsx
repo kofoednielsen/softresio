@@ -55,7 +55,7 @@ export function Menu() {
         zIndex={1000000}
       >
         <ScrollArea h="calc(100vh - 80px" mx="-md">
-          <Stack justify="center" grow pb="xl" px="md">
+          <Stack justify="center" pb="xl" px="md">
             <NavLink to="/raids">
               <Button fullWidth variant="default" onClick={toggleDrawer}>
                 My raids

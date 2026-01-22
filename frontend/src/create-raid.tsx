@@ -20,8 +20,7 @@ import type {
   CreateRaidRequest,
   CreateRaidResponse,
   GenericResponse,
-  Instance,
-  OnChangeEvent
+  Instance
 } from "../types/types.ts";
 
 export function CreateRaid() {
@@ -95,12 +94,12 @@ export function CreateRaid() {
                   return { value: e.id.toString(), label: e.name };
                 })}
                 value={(instanceId || "").toString()}
-                onChange={(v: string) => setInstanceId(Number(v))}
+                onChange={(v) => setInstanceId(Number(v))}
               />
               <Textarea
                 label="Description"
                 value={description}
-                onChange={(event: OnChangeEvent) =>
+                onChange={(event) =>
                   setDescription(event.currentTarget.value)}
               />
 
@@ -128,7 +127,7 @@ export function CreateRaid() {
               </Stack>
               <DateTimePicker
                 value={time}
-                onChange={(value: string) => {
+                onChange={(value) => {
                   if (value) setTime(new Date(value));
                 }}
                 label="Pick date and time"
@@ -136,7 +135,7 @@ export function CreateRaid() {
               />
               <Switch
                 value={useSrPlus ? 1 : 0}
-                onChange={(event: OnChangeEvent) =>
+                onChange={(event) =>
                   setUseSrPlus(event.currentTarget.value ? true : false)}
                 label="Use SR+"
               />
@@ -144,7 +143,7 @@ export function CreateRaid() {
                 label="Admin password"
                 value={adminPassword}
                 withAsterisk={adminPassword == ""}
-                onChange={(event: OnChangeEvent) =>
+                onChange={(event) =>
                   setAdminPassword(event.currentTarget.value)}
                 description="Anyone with the admin password can become admin of the raid"
               />

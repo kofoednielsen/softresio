@@ -5,7 +5,7 @@ import type {
   GenericResponse,
   Item,
   Sheet,
-  OnChangeEvent
+  Class,
 } from "../types/types.ts";
 import {
   IconSearch,
@@ -36,60 +36,47 @@ import { type RowComponentProps } from "react-window";
 
 const isTouchScreen = globalThis.matchMedia("(pointer: coarse)").matches;
 
-const ClassIcon = ({ iconId }: { iconId: string }) => {
+const ClassIcon = ({spec, xclass}: { xclass: string, spec?: string }) => {
+  const icon = `${xclass}${spec ? spec.replace(" ", "") : ""}`
   return (
     <Image
       radius="sm"
       h={20}
       w="auto"
-      src={`https://talents.turtlecraft.gg/icons/${classIcons[iconId]}`}
+      src={`https://talents.turtlecraft.gg/icons/${classIcons[icon]}`}
     />
   );
 };
 
-const renderSelectOption: SelectProps["renderOption"] = (
-  { option },
-) => (
-  <Group gap="xs">
-    <ClassIcon iconId={option.value} />
-    {option.label}
-  </Group>
-);
-
-function ItemComponent({
-  index,
-  items,
-  selectedItems,
+const ItemComponent = ({
+  item,
   onItemClick,
   onItemLongClick,
+  selectedItemIds,
   showTooltipItemId,
-  style,
-  itemId,
-  deleteMode = false,
-}: RowComponentProps<{
-  onItemClick: (item_id: number) => void;
-  onItemLongClick: (item_id: number) => void;
-  selectedItems: number[];
-  items: Item[];
-  showTooltipItemId: number | undefined;
-  itemId?: number;
-  deleteMode: boolean;
-}>) {
+  deleteMode,
+  style
+}: {
+  onItemClick: (itemId: number) => void;
+  onItemLongClick: (itemId: number) => void;
+  selectedItemIds: number[];
+  showTooltipItemId?: number;
+  item: Item
+  deleteMode?: boolean;
+  style?: React.CSSProperties;
+}) => {
   const { hovered, ref } = useHover();
   const handlers = useLongPress(() => onItemLongClick(item.id));
-
-  const item = itemId
-    ? items.filter((item: Item) => item.id == itemId)[0]
-    : items[index];
 
   return (
     <Tooltip
       m={0}
       p={0}
+      key={item.id}
       opened={showTooltipItemId == item.id || (!isTouchScreen && hovered)}
       label={
         <div
-          class="tt-wrap"
+          className="tt-wrap"
           dangerouslySetInnerHTML={{ __html: item.tooltip }}
         />
       }
@@ -112,7 +99,7 @@ function ItemComponent({
           <Image
             onClick={(e) => {
               e.stopPropagation();
-              window.open(`https://database.turtlecraft.gg/?item=${item.id}`);
+              globalThis.open(`https://database.turtlecraft.gg/?item=${item.id}`);
             }}
             style={{
               filter: "drop-shadow(0px 0px 2px)",
@@ -130,10 +117,38 @@ function ItemComponent({
         </Group>
         {deleteMode
           ? <CloseButton />
-          : <Checkbox checked={selectedItems.includes(item.id)} size="md" />}
+          : <Checkbox checked={selectedItemIds.includes(item.id)} size="md" />}
       </Group>
     </Tooltip>
   );
+}
+
+const ReactWindowItemComponent = ({
+  index,
+  items,
+  selectedItemIds,
+  onItemClick,
+  onItemLongClick,
+  showTooltipItemId,
+  style,
+  deleteMode = false,
+}: RowComponentProps<{
+  onItemClick: (item_id: number) => void;
+  onItemLongClick: (item_id: number) => void;
+  selectedItemIds: number[];
+  items: Item[];
+  showTooltipItemId?: number;
+  deleteMode?: boolean;
+}>) => {
+  return <ItemComponent
+      item={items[index]}
+      selectedItemIds={selectedItemIds}
+      onItemClick={onItemClick}
+      onItemLongClick={onItemLongClick}
+      showTooltipItemId={showTooltipItemId}
+      deleteMode={deleteMode}
+      style={style}
+    />
 }
 
 export function ItemSelector(
@@ -146,21 +161,24 @@ export function ItemSelector(
   const [selectedSpec, setSelectedSpec] = useState<string | null>();
   const [characterName, setCharacterName] = useState("");
   const [filteredItems, setFilteredItems] = useState(items);
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
-  const [showTooltipItemId, setShowTooltipItemId] = useState<number | null>();
+  const [selectedItemIds, setSelectedItemIds] = useState<number[]>([]);
+  const [showTooltipItemId, setShowTooltipItemId] = useState<number>();
 
   const onItemLongClick = (item_id: number) => setShowTooltipItemId(item_id);
 
   const submitSr = () => {
+    if (selectedClass == undefined || selectedSpec == undefined || characterName == undefined) {
+      return
+    }
     const character: Character = {
       name: characterName,
-      class: selectedClass,
+      class: selectedClass as Class,
       spec: selectedSpec,
     };
     const request: CreateSrRequest = {
-      raid_id: sheet.id,
+      raidId: sheet.raidId,
       character,
-      selected_item_ids: selectedItems,
+      selectedItemIds,
     };
     fetch("/api/sr/create", { method: "POST", body: JSON.stringify(request) })
       .then((r) => r.json())
@@ -171,16 +189,33 @@ export function ItemSelector(
       });
   };
 
-  const onItemClick = (item_id: number) => {
-    if (!showTooltipItemId || showTooltipItemId == item_id) {
-      if (selectedItems.includes(item_id)) {
-        setSelectedItems(selectedItems.filter((i) => i !== item_id));
+  const onItemClick = (itemId: number) => {
+    if (!showTooltipItemId || showTooltipItemId == itemId) {
+      if (selectedItemIds.includes(itemId)) {
+        setSelectedItemIds(selectedItemIds.filter((i) => i !== itemId));
       } else {
-        setSelectedItems([...selectedItems, item_id]);
+        setSelectedItemIds([...selectedItemIds, itemId]);
       }
     }
     setShowTooltipItemId(undefined);
   };
+
+  const renderClass: SelectProps["renderOption"] = (
+    { option },
+  ) => (
+    <Group gap="xs">
+      <ClassIcon xclass={option.value}/>
+      {option.label}
+    </Group>
+  );
+
+  const renderSpec: SelectProps["renderOption"] = (
+    { option },
+  ) => ( selectedClass ? ( <Group gap="xs">
+      <ClassIcon xclass={selectedClass} spec={option.value} />
+      {option.label}
+    </Group>) : null
+  );
 
   useEffect(() => {
     setFilteredItems(
@@ -190,10 +225,6 @@ export function ItemSelector(
     );
   }, [debouncedSearch]);
 
-  useEffect(() => {
-    console.log(filteredItems.length);
-  }, [filteredItems]);
-
   return (
     <>
       <Paper shadow="sm" p="md">
@@ -201,7 +232,7 @@ export function ItemSelector(
           <Title order={2}>Choose your SR</Title>
           <TextInput
             value={characterName}
-            onChange={(event: OnChangeEvent) =>
+            onChange={(event) =>
               setCharacterName(event.currentTarget.value)}
             label="Character name"
             placeholder="Character name"
@@ -211,15 +242,15 @@ export function ItemSelector(
               placeholder="Class"
               searchable
               value={selectedClass}
-              onChange={(value: string) => {
+              onChange={(value) => {
                 setSelectedSpec(null);
                 setSelectedClass(value);
               }}
               data={Object.keys(classes)}
               label="Class"
-              renderOption={renderSelectOption}
+              renderOption={renderClass}
               leftSection={selectedClass
-                ? <ClassIcon iconId={selectedClass} />
+                ? <ClassIcon xclass={selectedClass} />
                 : undefined}
             />
             <Select
@@ -228,9 +259,9 @@ export function ItemSelector(
               onChange={setSelectedSpec}
               value={selectedSpec}
               data={selectedClass ? classes[selectedClass] : []}
-              renderOption={renderSelectOption}
-              leftSection={selectedSpec
-                ? <ClassIcon iconId={selectedSpec} />
+              renderOption={renderSpec}
+              leftSection={selectedSpec && selectedClass
+                ? <ClassIcon xclass={selectedClass} spec={selectedSpec} />
                 : undefined}
               label="Specialization"
             />
@@ -243,20 +274,18 @@ export function ItemSelector(
             <Button
               w="100%"
               onClick={() => setSearchOpen(true)}
-              variant={selectedItems.length < sheet.sr_count ? "" : "default"}
+              variant={selectedItemIds.length < sheet.srCount ? "" : "default"}
               mb={10}
             >
               Select item(s)
             </Button>
             <Stack gap={0}>
-              {selectedItems.map((itemId) => (
+              {selectedItemIds.map((itemId) => (
                 <ItemComponent
-                  items={items}
-                  index={0}
-                  itemId={itemId}
+                  item={items.filter(i => i.id == itemId)[0]}
                   onItemClick={onItemClick}
                   deleteMode
-                  selectedItems={selectedItems}
+                  selectedItemIds={selectedItemIds}
                   showTooltipItemId={showTooltipItemId}
                   onItemLongClick={onItemLongClick}
                 />
@@ -265,7 +294,7 @@ export function ItemSelector(
           </Paper>
           <Button
             disabled={!selectedClass || !selectedSpec || !characterName ||
-              selectedItems.length != sheet.sr_count}
+              selectedItemIds.length != sheet.srCount}
             onClick={submitSr}
           >
             Submit
@@ -286,7 +315,7 @@ export function ItemSelector(
             <Input
               w="100%"
               value={search}
-              onChange={(event: any) => setSearch(event.currentTarget.value)}
+              onChange={(event) => setSearch(event.currentTarget.value)}
               leftSection={<IconSearch size={16} />}
               placeholder="Search.."
             />
@@ -307,13 +336,13 @@ export function ItemSelector(
             />
           </Group>
           <List
-            rowComponent={ItemComponent}
+            rowComponent={ReactWindowItemComponent}
             rowCount={filteredItems.length}
             rowHeight={40}
             rowProps={{
               items: filteredItems,
               onItemClick,
-              selectedItems,
+              selectedItemIds,
               showTooltipItemId,
               onItemLongClick,
             }}
