@@ -126,7 +126,7 @@ app.post("/api/sr/create", async (c) => {
     const [raid] = await tx<
       Raid[]
     >`select raid -> 'sheet' as sheet from raids where raid @> ${{
-      sheet: { id: raidId },
+      sheet: { raidId },
     } as never} for update;`
     if (!raid) return
     raid.sheet.attendees = raid.sheet.attendees.filter((attendee) =>
