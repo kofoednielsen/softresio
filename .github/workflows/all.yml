@@ -71,5 +71,6 @@ jobs:
         id: push
         uses: docker/build-push-action@v6
         with:
+          tag: latest
           context: .
           push: true
