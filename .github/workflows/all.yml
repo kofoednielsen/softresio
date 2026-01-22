@@ -74,7 +74,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
     permissions:
       contents: read
       packages: write
@@ -93,6 +92,6 @@ jobs:
         id: push
         uses: docker/build-push-action@v6
         with:
-          tags: "${{ github.repository }}:latest"
+          tags: "${{env.REGISTRY}}/${{ github.repository }}:latest"
           context: .
           push: true
