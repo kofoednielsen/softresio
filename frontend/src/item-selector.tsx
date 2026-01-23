@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import type {
+  Attendee,
   Character,
   Class,
   CreateSrRequest,
@@ -241,7 +242,7 @@ export function ItemSelector(
     )
   }, [debouncedSearch])
 
-  const findAttendeeMe = () =>
+  const findAttendeeMe = (): Attendee | undefined =>
     sheet.attendees.filter((attendee) =>
       attendee.user.userId === user.userId
     )[0]
@@ -250,13 +251,13 @@ export function ItemSelector(
     a.length === b.length && a.every((itemId) => new Set(b).has(itemId))
   const srChanged = () => {
     const attendeeMe = findAttendeeMe()
-    return (attendeeMe.character.name !== characterName ||
+    return (!attendeeMe || (attendeeMe.character.name !== characterName ||
       attendeeMe.character.class !== selectedClass ||
       attendeeMe.character.spec !== selectedSpec ||
       !itemIdsEqual(
         attendeeMe.softReserves.map((item) => item.itemId),
         selectedItemIds,
-      ))
+      )))
   }
 
   useEffect(() => {
