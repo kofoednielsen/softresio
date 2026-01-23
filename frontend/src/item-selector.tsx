@@ -424,7 +424,10 @@ export function ItemSelector(
               value={slotFilter}
               onChange={(value) => {
                 setSlotFilter(value)
-                setTypeFilter(null)
+                if (
+                  slotFilter && typeFilter &&
+                  !itemSlots[slotFilter].includes(typeFilter)
+                ) setTypeFilter(null)
               }}
               data={Object.keys(itemSlots)}
             />
