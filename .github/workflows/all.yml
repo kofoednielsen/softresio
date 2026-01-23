@@ -107,4 +107,4 @@ jobs:
           echo "${{ secrets.SSH_DEPLOY_KEY }}" > ~/.ssh/id_rsa
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
       - name: Update deployment
-        run: 'ssh softres.io -p 2026'
+        run: 'ssh softres@softres.io -p 2026'
