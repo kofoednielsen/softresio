@@ -1,4 +1,4 @@
-![softres.io logo](/frontend/public/logo-orange.png)
+![softres.io logo](/frontend/src/assets/logo-orange.png)
 
 ## Development
 

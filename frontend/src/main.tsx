@@ -20,6 +20,7 @@ function App() {
         <Box h="100dvh">
           <Menu />
           <Routes>
+            <Route path="/" element={<CreateRaid />} />
             <Route path="/create" element={<CreateRaid />} />
             <Route path="/:raid_id" element={<Raid />} />;
           </Routes>
