@@ -3,7 +3,6 @@ export interface OnChangeEvent {
         value: string
     }
 }
-
 export type Class = 
     | "Warrior"
     | "Mage"
@@ -105,6 +104,7 @@ export interface Item {
   name: string;
   slot: string;
   type: string;
+  classes: Class[];
   quality: 1 | 2 | 3 | 4 | 5;
 }
 
