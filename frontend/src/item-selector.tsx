@@ -4,7 +4,7 @@ import type {
   Character,
   Class,
   CreateSrRequest,
-  GenericResponse,
+  CreateSrResponse,
   Item,
   Sheet,
   User,
@@ -159,7 +159,7 @@ export function ItemSelector(
   { items, sheet, loadRaid, user }: {
     items: Item[]
     sheet: Sheet
-    loadRaid: () => void
+    loadRaid: (sheet?: Sheet) => void
     user: User
   },
 ) {
@@ -194,11 +194,11 @@ export function ItemSelector(
     }
     fetch("/api/sr/create", { method: "POST", body: JSON.stringify(request) })
       .then((r) => r.json())
-      .then((j: GenericResponse<null>) => {
+      .then((j: CreateSrResponse) => {
         if (j.error) {
           alert(j.error)
-        } else {
-          loadRaid()
+        } else if (j.data) {
+          loadRaid(j.data)
         }
       })
   }

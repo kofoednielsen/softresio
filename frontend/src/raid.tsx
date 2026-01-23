@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react"
-import type { GenericResponse, Instance, Sheet, User } from "../types/types.ts"
+import type {
+  GetInstancesResponse,
+  GetRaidResponse,
+  Instance,
+  Sheet,
+  User,
+} from "../types/types.ts"
 import { useParams } from "react-router"
 import { ItemSelector } from "./item-selector.tsx"
 import { Grid, Group, Paper, Text, Title } from "@mantine/core"
@@ -10,9 +16,12 @@ export const Raid = () => {
   const [user, setUser] = useState<User>()
   const [instance, setInstance] = useState<Instance>()
 
-  const loadRaid = () => {
+  const loadRaid = (sheet?: Sheet) => {
+    if (sheet) {
+      return setSheet(sheet)
+    }
     fetch(`/api/raid/${params.raid_id}`).then((r) => r.json()).then(
-      (j: GenericResponse<Sheet>) => {
+      (j: GetRaidResponse) => {
         if (j.error) {
           alert(j.error)
         } else if (j.data) {
@@ -29,7 +38,7 @@ export const Raid = () => {
     if (sheet) {
       fetch("/api/instances")
         .then((r) => r.json())
-        .then((j: GenericResponse<Instance[]>) => {
+        .then((j: GetInstancesResponse) => {
           if (j.error) {
             alert(j.error)
           } else if (j.data) {

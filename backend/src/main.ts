@@ -5,10 +5,11 @@ import type {
   CreateRaidRequest,
   CreateRaidResponse,
   CreateSrRequest,
-  GenericResponse,
+  CreateSrResponse,
+  GetInstancesResponse,
+  GetRaidResponse,
   Instance,
   Raid,
-  Sheet,
   SoftReserve,
   User,
 } from "../types/types.ts"
@@ -51,8 +52,8 @@ const sql = postgres({
   password: DATABASE_PASSWORD,
 })
 
-const beginWithTimeout = (
-  body: (tx: TransactionSql<{}>) => Promise<RowList<Row[]> | void>,
+const beginWithTimeout = <T>(
+  body: (tx: TransactionSql<{}>) => Promise<T>,
 ) => {
   return sql.begin(async (tx) => {
     await tx`set local transaction_timeout = '1s';`
@@ -107,7 +108,7 @@ const getOrCreateUser = async (c: Context): Promise<User> => {
 
 app.get("/api/instances", async (c) => {
   const user = await getOrCreateUser(c)
-  const response: GenericResponse<Instance[]> = { data: instances, user }
+  const response: GetInstancesResponse = { data: instances, user }
   return c.json(response)
 })
 
@@ -123,7 +124,7 @@ app.post("/api/sr/create", async (c) => {
     softReserves,
     user,
   }
-  beginWithTimeout(async (tx) => {
+  const raid = await beginWithTimeout(async (tx) => {
     const [raid] = await tx<
       Raid[]
     >`select raid -> 'sheet' as sheet from raids where raid @> ${{
@@ -138,9 +139,18 @@ app.post("/api/sr/create", async (c) => {
     await tx`update raids set ${sql({ raid: raid } as never)} where raid @> ${{
       sheet: { raidId },
     } as never}`
+    return raid
   })
-  const response: GenericResponse<null> = { user, data: null }
-  return c.json(response)
+  if (raid) {
+    const response: CreateSrResponse = { user, data: raid.sheet }
+    return c.json(response)
+  } else {
+    const response: CreateSrResponse = {
+      user,
+      error: "An error occured while creating your SR",
+    }
+    return c.json(response)
+  }
 })
 
 app.post("/api/raid/create", async (c) => {
@@ -167,7 +177,7 @@ app.post("/api/raid/create", async (c) => {
     },
   }
   await sql`insert into raids ${sql({ raid: raid } as never)};`
-  const response: GenericResponse<CreateRaidResponse> = {
+  const response: CreateRaidResponse = {
     data: { raidId },
     user,
   }
@@ -186,7 +196,7 @@ app.get("/api/raid/:raidId", async (c) => {
   if (!raid) {
     return c.json({ error: "Raid not found" }, 404)
   }
-  const response: GenericResponse<Sheet> = { data: raid.sheet, user }
+  const response: GetRaidResponse = { data: raid.sheet, user }
   return c.json(response)
 })
 

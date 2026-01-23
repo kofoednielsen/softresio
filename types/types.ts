@@ -69,7 +69,7 @@ export interface Raid {
   sheet: Sheet;
 }
 
-export interface GenericResponse<T> {
+interface GenericResponse<T> {
   data?: T;
   error?: string;
   user: User;
@@ -84,9 +84,13 @@ export interface CreateRaidRequest {
   srCount: number;
 }
 
-export interface CreateRaidResponse {
-  raidId: string;
-}
+export type GetInstancesResponse = GenericResponse<Instance[]>
+
+export type CreateRaidResponse = GenericResponse<{ raidId: string }>
+
+export type CreateSrResponse = GenericResponse<Sheet>
+    
+export type GetRaidResponse = GenericResponse<Sheet>
 
 export interface CreateSrRequest {
   raidId: string;
@@ -108,3 +112,4 @@ export interface Instance {
   shortname: string;
   items: Item[];
 }
+

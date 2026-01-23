@@ -19,7 +19,7 @@ import { DateTimePicker } from "@mantine/dates"
 import type {
   CreateRaidRequest,
   CreateRaidResponse,
-  GenericResponse,
+  GetInstancesResponse,
   Instance,
 } from "../types/types.ts"
 
@@ -57,7 +57,7 @@ export function CreateRaid() {
     }
     fetch("/api/raid/create", { method: "POST", body: JSON.stringify(request) })
       .then((r) => r.json())
-      .then((j: GenericResponse<CreateRaidResponse>) => {
+      .then((j: CreateRaidResponse) => {
         if (j.error) {
           alert(j.error)
         } else if (j.data) {
@@ -69,7 +69,7 @@ export function CreateRaid() {
   useEffect(() => {
     fetch("/api/instances")
       .then((r) => r.json())
-      .then((j: GenericResponse<Instance[]>) => {
+      .then((j: GetInstancesResponse) => {
         if (j.error) {
           alert(j.error)
         } else if (j.data) {
