@@ -20,7 +20,6 @@ import {
   Modal,
   Paper,
   Select,
-  Skeleton,
   Stack,
   Text,
   TextInput,
@@ -338,17 +337,7 @@ export function ItemSelector(
               p="md"
               style={{ backgroundColor: "var(--mantine-color-dark-8" }}
             >
-              <Button
-                w="100%"
-                onClick={() => setSearchOpen(true)}
-                variant={selectedItemIds.length < sheet.srCount
-                  ? ""
-                  : "default"}
-                mb={10}
-              >
-                Select item(s)
-              </Button>
-              <Stack gap={8} justify="bottom">
+              <Stack gap="sm" justify="bottom">
                 {selectedItemIds.map((itemId) => (
                   <ItemComponent
                     item={items.filter((i) => i.id == itemId)[0]}
@@ -360,7 +349,16 @@ export function ItemSelector(
                   />
                 ))}
                 {Array.from({ length: sheet.srCount - selectedItemIds.length })
-                  .map(() => <Skeleton h={44} />)}
+                  .map(() => (
+                    <Button
+                      w="100%"
+                      h={44}
+                      onClick={() => setSearchOpen(true)}
+                      variant="default"
+                    >
+                      Select item
+                    </Button>
+                  ))}
                 <Text
                   size="sm"
                   c="var(--mantine-color-error)"
