@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import {
   Button,
-  Grid,
   Group,
   Paper,
   PasswordInput,
@@ -80,89 +79,84 @@ export function CreateRaid() {
 
   return (
     <>
-      <Grid gutter={0} justify="center">
-        <Grid.Col span={{ base: 11, md: 8, lg: 4 }}>
-          <Paper shadow="sm" p="sm">
-            <Stack gap="md">
-              <Title order={2}>Create a new raid</Title>
-              <Select
-                withAsterisk={instanceId == undefined}
-                label="Instance"
-                searchable
-                placeholder="Select instance"
-                data={instances?.map((e) => {
-                  return { value: e.id.toString(), label: e.name }
-                })}
-                value={(instanceId || "").toString()}
-                onChange={(v) => setInstanceId(Number(v))}
-              />
-              <Textarea
-                label="Description"
-                value={description}
-                onChange={(event) => setDescription(event.currentTarget.value)}
-              />
+      <Paper shadow="sm" p="sm">
+        <Stack gap="md">
+          <Title order={2}>Create a new raid</Title>
+          <Select
+            withAsterisk={instanceId == undefined}
+            label="Instance"
+            searchable
+            placeholder="Select instance"
+            data={instances?.map((e) => {
+              return { value: e.id.toString(), label: e.name }
+            })}
+            value={(instanceId || "").toString()}
+            onChange={(v) => setInstanceId(Number(v))}
+          />
+          <Textarea
+            label="Description"
+            value={description}
+            onChange={(event) => setDescription(event.currentTarget.value)}
+          />
 
-              <Stack gap={0}>
-                <Group mb={3} p={0} gap={3}>
-                  <Text size="sm">
-                    Number of SRs
-                  </Text>
-                  <Text
-                    size="sm"
-                    c="var(--mantine-color-error)"
-                    hidden={!!srCount}
-                  >
-                    *
-                  </Text>
-                </Group>
-                <SegmentedControl
-                  defaultValue=""
-                  data={["1", "2", "3", "4"]}
-                  w="100%"
-                  withItemsBorders={false}
-                  value={srCount?.toString()}
-                  onChange={(value: string) => setSrCount(Number(value))}
-                />
-              </Stack>
-              <DateTimePicker
-                value={time}
-                onChange={(value) => {
-                  if (value) setTime(new Date(value))
-                }}
-                label="Pick date and time"
-                placeholder="Pick date and time"
-              />
-              <Switch
-                value={useSrPlus ? 1 : 0}
-                onChange={(event) =>
-                  setUseSrPlus(event.currentTarget.value ? true : false)}
-                label="Use SR+"
-              />
-              <input
-                id="username"
-                style={{ display: "none" }}
-                value="softres.io"
-              />
-              <PasswordInput
-                label="Admin password"
-                type=""
-                value={adminPassword}
-                withAsterisk={adminPassword == ""}
-                onChange={(event) =>
-                  setAdminPassword(event.currentTarget.value)}
-                description="Anyone with the admin password can become admin of the raid"
-              />
-              <Button
-                mt="sm"
-                onClick={createRaid}
-                disabled={!instanceId || !adminPassword || !srCount}
+          <Stack gap={0}>
+            <Group mb={3} p={0} gap={3}>
+              <Text size="sm">
+                Number of SRs
+              </Text>
+              <Text
+                size="sm"
+                c="var(--mantine-color-error)"
+                hidden={!!srCount}
               >
-                Create Raid
-              </Button>
-            </Stack>
-          </Paper>
-        </Grid.Col>
-      </Grid>
+                *
+              </Text>
+            </Group>
+            <SegmentedControl
+              defaultValue=""
+              data={["1", "2", "3", "4"]}
+              w="100%"
+              withItemsBorders={false}
+              value={srCount?.toString()}
+              onChange={(value: string) => setSrCount(Number(value))}
+            />
+          </Stack>
+          <DateTimePicker
+            value={time}
+            onChange={(value) => {
+              if (value) setTime(new Date(value))
+            }}
+            label="Pick date and time"
+            placeholder="Pick date and time"
+          />
+          <Switch
+            value={useSrPlus ? 1 : 0}
+            onChange={(event) =>
+              setUseSrPlus(event.currentTarget.value ? true : false)}
+            label="Use SR+"
+          />
+          <input
+            id="username"
+            style={{ display: "none" }}
+            value="softres.io"
+          />
+          <PasswordInput
+            label="Admin password"
+            type=""
+            value={adminPassword}
+            withAsterisk={adminPassword == ""}
+            onChange={(event) => setAdminPassword(event.currentTarget.value)}
+            description="Anyone with the admin password can become admin of the raid"
+          />
+          <Button
+            mt="sm"
+            onClick={createRaid}
+            disabled={!instanceId || !adminPassword || !srCount}
+          >
+            Create Raid
+          </Button>
+        </Stack>
+      </Paper>
     </>
   )
 }

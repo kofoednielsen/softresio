@@ -5,7 +5,7 @@ import { CreateRaid } from "./create-raid.tsx"
 import { Raid } from "./raid.tsx"
 import "@mantine/core/styles.css"
 import "@mantine/dates/styles.css"
-import { Box, createTheme, MantineProvider } from "@mantine/core"
+import { Box, createTheme, Grid, MantineProvider } from "@mantine/core"
 import { Menu } from "./menu.tsx"
 import { BrowserRouter, Route, Routes } from "react-router"
 
@@ -19,11 +19,15 @@ function App() {
       <BrowserRouter>
         <Box h="100dvh">
           <Menu />
-          <Routes>
-            <Route path="/" element={<CreateRaid />} />
-            <Route path="/create" element={<CreateRaid />} />
-            <Route path="/:raid_id" element={<Raid />} />;
-          </Routes>
+          <Grid gutter={0} justify="center">
+            <Grid.Col span={{ base: 11, md: 4, lg: 3 }}>
+              <Routes>
+                <Route path="/" element={<CreateRaid />} />
+                <Route path="/create" element={<CreateRaid />} />
+                <Route path="/:raid_id" element={<Raid />} />;
+              </Routes>
+            </Grid.Col>
+          </Grid>
         </Box>
       </BrowserRouter>
     </MantineProvider>

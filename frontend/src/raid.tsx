@@ -7,7 +7,7 @@ import type {
   User,
 } from "../types/types.ts"
 import { useParams } from "react-router"
-import { Grid, Paper, Title } from "@mantine/core"
+import { Paper, Title } from "@mantine/core"
 import { CreateSr } from "./create-sr.tsx"
 import { SrList } from "./sr-list.tsx"
 
@@ -59,25 +59,20 @@ export const Raid = () => {
   if (sheet && instance && user) {
     return (
       <>
-        <Grid gutter={0} justify="center">
-          <Grid.Col span={{ base: 11, md: 4 }}>
-            <Paper shadow="sm" p="sm">
-              <Title>{instance.name}</Title>
-            </Paper>
-            <br />
-            <CreateSr
-              loadRaid={loadRaid}
-              items={instance.items}
-              sheet={sheet}
-              user={user}
-            />
-            <br />
-            <Paper shadow="sm">
-              <SrList attendees={sheet.attendees} items={instance.items} />
-            </Paper>
-            <br />
-          </Grid.Col>
-        </Grid>
+        <Paper shadow="sm" p="sm">
+          <Title>{instance.name}</Title>
+        </Paper>
+        <br />
+        <CreateSr
+          loadRaid={loadRaid}
+          items={instance.items}
+          sheet={sheet}
+          user={user}
+        />
+        <br />
+        <Paper shadow="sm">
+          <SrList attendees={sheet.attendees} items={instance.items} />
+        </Paper>
       </>
     )
   }
