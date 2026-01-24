@@ -166,7 +166,7 @@ export function ItemSelector(
   const [searchOpen, setSearchOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [debouncedSearch] = useDebounce(search, 100)
-  const [selectedClass, setSelectedClass] = useState<string | null>()
+  const [selectedClass, setSelectedClass] = useState<Class | null>()
   const [selectedSpec, setSelectedSpec] = useState<string | null>()
   const [characterName, setCharacterName] = useState("")
   const [filteredItems, setFilteredItems] = useState(items)
@@ -189,7 +189,7 @@ export function ItemSelector(
     }
     const character: Character = {
       name: characterName,
-      class: selectedClass as Class,
+      class: selectedClass,
       spec: selectedSpec,
     }
     const request: CreateSrRequest = {
@@ -241,15 +241,32 @@ export function ItemSelector(
 
   useEffect(() => {
     setFilteredItems(
-      items.filter((item) =>
-        item.name.toLowerCase().includes(
-          debouncedSearch?.toLowerCase() || "",
-        ) &&
-        (!slotFilter || item.slot == slotFilter) &&
-        (!typeFilter || item.type == typeFilter)
-      ),
+      items.filter((item) => {
+        const stringQuery = debouncedSearch?.toLowerCase() || ""
+        if (
+          !item.name.toLowerCase().includes(stringQuery)
+        ) {
+          return false
+        } else if (
+          slotFilter == "Class" && selectedClass &&
+          !item.classes.includes(selectedClass)
+        ) {
+          console.log(item.name)
+          return false
+        } else if (
+          slotFilter && slotFilter != "Class" && item.slot != slotFilter
+        ) {
+          return false
+        } else if (
+          typeFilter && item.type != typeFilter
+        ) {
+          return false
+        } else {
+          return true
+        }
+      }),
     )
-  }, [debouncedSearch, slotFilter, typeFilter])
+  }, [debouncedSearch, slotFilter, typeFilter, selectedClass])
 
   const findAttendeeMe = (): Attendee | undefined =>
     sheet.attendees.filter((attendee) =>
@@ -299,7 +316,7 @@ export function ItemSelector(
               value={selectedClass}
               onChange={(value) => {
                 setSelectedSpec(null)
-                setSelectedClass(value)
+                setSelectedClass(value as Class)
               }}
               data={Object.keys(classes)}
               label="Class"

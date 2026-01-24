@@ -29,6 +29,7 @@ export const itemSlots: { [slot: string]: string[] } = {
     "Shield",
     "Leather",
   ],
+  "Class": [],
   "Hands": [
     "Cloth",
     "Leather",
