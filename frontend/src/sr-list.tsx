@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Box, Group, Select, Table, Text, TextInput } from "@mantine/core"
 import type { Attendee, Class, Item } from "../types/types.ts"
 import { ItemNameAndIcon } from "./item.tsx"
-import { CharacterNameClassSpec, ClassIcon } from "./class.tsx"
+import { ClassIcon } from "./class.tsx"
 import { classes, renderClass } from "./class.tsx"
 
 export const SrList = (
@@ -15,10 +15,10 @@ export const SrList = (
     .map((attendee) => (
       attendee.softReserves
         .filter((
-          res,
+          _,
         ) => (!classFilter || attendee.character.class == classFilter))
         .filter((
-          res,
+          _,
         ) => (!nameFilter || attendee.character.name.startsWith(nameFilter)))
         .filter((
           res,
