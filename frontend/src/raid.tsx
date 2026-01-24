@@ -61,7 +61,7 @@ export const Raid = () => {
       <>
         <Grid gutter={0} justify="center">
           <Grid.Col span={{ base: 11, md: 4 }}>
-            <Paper shadow="sm" p="xl">
+            <Paper shadow="sm" p="sm">
               <Title>{instance.name}</Title>
             </Paper>
             <br />
@@ -72,7 +72,7 @@ export const Raid = () => {
               user={user}
             />
             <br />
-            <Paper shadow="sm" p="md">
+            <Paper shadow="sm">
               <SrList attendees={sheet.attendees} items={instance.items} />
             </Paper>
             <br />

@@ -20,11 +20,10 @@ import {
   Title,
 } from "@mantine/core"
 import { classes } from "./class.tsx"
-import type { SelectProps } from "@mantine/core"
 import "../css/tooltip.css"
 import { ItemPicker } from "./item-picker.tsx"
 import { SelectableItem } from "./item.tsx"
-import { ClassIcon, renderClass } from "./class.tsx"
+import { ClassIcon, renderClass, renderSpec } from "./class.tsx"
 
 export const CreateSr = (
   { items, sheet, loadRaid, user }: {
@@ -68,17 +67,6 @@ export const CreateSr = (
       })
   }
 
-  const renderSpec: SelectProps["renderOption"] = (
-    { option },
-  ) => (selectedClass
-    ? (
-      <Group gap="xs">
-        <ClassIcon xclass={selectedClass} spec={option.value || null} />
-        {option.label}
-      </Group>
-    )
-    : null)
-
   const findAttendeeMe = (): Attendee | undefined =>
     sheet.attendees.filter((attendee) =>
       attendee.user.userId === user.userId
@@ -108,7 +96,7 @@ export const CreateSr = (
   }, [])
 
   return (
-    <Paper shadow="sm" p="md">
+    <Paper shadow="sm" p="sm">
       <Stack>
         <Title order={2}>Choose your SR</Title>
         <TextInput
@@ -118,6 +106,7 @@ export const CreateSr = (
           onChange={(event) => setCharacterName(event.currentTarget.value)}
           label="Character name"
           placeholder="Character name"
+          w="200"
         />
         <Group>
           <Select
@@ -131,8 +120,9 @@ export const CreateSr = (
             }}
             data={Object.keys(classes)}
             label="Class"
-            renderOption={renderClass}
+            renderOption={renderClass(selectedClass || undefined)}
             leftSection={<ClassIcon xclass={selectedClass} />}
+            leftSectionPointerEvents="none"
           />
           <Select
             placeholder="Specialization"
@@ -141,10 +131,13 @@ export const CreateSr = (
             onChange={setSelectedSpec}
             value={selectedSpec}
             data={selectedClass ? classes[selectedClass] : []}
-            renderOption={renderSpec}
+            renderOption={selectedClass
+              ? renderSpec(selectedClass, selectedSpec)
+              : undefined}
             leftSection={
               <ClassIcon xclass={selectedClass} spec={selectedSpec} />
             }
+            leftSectionPointerEvents="none"
             label="Specialization"
           />
         </Group>
@@ -162,8 +155,8 @@ export const CreateSr = (
             </Text>
           </Group>
           <Paper
+            p="sm"
             shadow="sm"
-            p="md"
             style={{ backgroundColor: "var(--mantine-color-dark-8" }}
           >
             <Stack gap="sm" justify="bottom">

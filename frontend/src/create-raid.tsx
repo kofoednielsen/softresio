@@ -82,7 +82,7 @@ export function CreateRaid() {
     <>
       <Grid gutter={0} justify="center">
         <Grid.Col span={{ base: 11, md: 8, lg: 4 }}>
-          <Paper shadow="sm" p="md">
+          <Paper shadow="sm" p="sm">
             <Stack gap="md">
               <Title order={2}>Create a new raid</Title>
               <Select

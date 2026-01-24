@@ -1,9 +1,24 @@
 import { useState } from "react"
-import { Box, Group, Select, Table, Text, TextInput } from "@mantine/core"
-import type { Attendee, Class, Item } from "../types/types.ts"
+import {
+  ActionIcon,
+  Group,
+  Select,
+  Table,
+  TextInput,
+  Title,
+  Tooltip,
+} from "@mantine/core"
+import type { Attendee, Class, Item, SoftReserve } from "../types/types.ts"
 import { ItemNameAndIcon } from "./item.tsx"
 import { ClassIcon } from "./class.tsx"
+import {
+  IconArrowsSort,
+  IconSortAscendingLetters,
+  IconSortDescendingLetters,
+} from "@tabler/icons-react"
 import { classes, renderClass } from "./class.tsx"
+
+type ListElement = { attendee: Attendee; softReserve: SoftReserve }
 
 export const SrList = (
   { attendees, items }: { attendees: Attendee[]; items: Item[] },
@@ -11,87 +26,159 @@ export const SrList = (
   const [classFilter, setClassFilter] = useState<Class>()
   const [nameFilter, setNameFilter] = useState<string>()
   const [itemFilter, setItemFilter] = useState<string>()
-  const rows = attendees
-    .map((attendee) => (
-      attendee.softReserves
-        .filter((
-          _,
-        ) => (!classFilter || attendee.character.class == classFilter))
-        .filter((
-          _,
-        ) => (!nameFilter || attendee.character.name.startsWith(nameFilter)))
-        .filter((
-          res,
-        ) => (!itemFilter ||
-          items.filter((item) => item.id == res.itemId)[0]?.name.toLowerCase()
-            .includes(itemFilter.toLowerCase()))
-        )
-        .map((res) => (
-          <Table.Tr key={attendee.character.name + res.itemId}>
-            <Table.Td>
-              <Group gap={0}>
-                <ClassIcon xclass={attendee.character.class} />
-                <ClassIcon
-                  xclass={attendee.character.class}
-                  spec={attendee.character.spec}
-                />
-              </Group>
-            </Table.Td>
-            <Table.Td>
-              <Text lineClamp={1}>
-                {attendee.character.name}
-              </Text>
-            </Table.Td>
-            <Table.Td>
-              <ItemNameAndIcon
-                item={items.filter((item) => item.id == res.itemId)[0]}
-              />
-            </Table.Td>
-          </Table.Tr>
-        ))
-    ))
-  return (
-    <Box
-      h={50 + (39.8) *
-          (attendees.flatMap((attendee) => attendee.softReserves)).length}
+  const [sortBy, setSortBy] = useState<"name" | "item" | "class">("class")
+  const [sortDesc, setSortDesc] = useState<boolean>(false)
+
+  const filter = (
+    { attendee, softReserve }: ListElement,
+  ) => ((!classFilter || attendee.character.class == classFilter) &&
+    (!nameFilter || attendee.character.name.startsWith(nameFilter)) &&
+    (!itemFilter ||
+      items.filter((item) => item.id == softReserve.itemId)[0]?.name
+        .toLowerCase()
+        .includes(itemFilter.toLowerCase())))
+
+  const sort = (a: ListElement, b: ListElement) => {
+    let valueA = ""
+    let valueB = ""
+    if (sortBy == "name") {
+      valueA = a.attendee.character.name
+      valueB = b.attendee.character.name
+    } else if (sortBy == "class") {
+      valueA = a.attendee.character.class
+      valueB = b.attendee.character.class
+    } else if (sortBy == "item") {
+      valueA = items.filter((item) => item.id == a.softReserve.itemId)[0]?.name
+      valueB = items.filter((item) => item.id == b.softReserve.itemId)[0]?.name
+    }
+    return valueA.localeCompare(valueB) * (sortDesc ? -1 : 1)
+  }
+
+  const elements = attendees.flatMap((attendee) =>
+    attendee.softReserves.map((softReserve) => ({ softReserve, attendee }))
+  ).sort(sort).sort((a, b) => (Number(filter(a)) * -1 + Number(filter(b))))
+
+  const rows = elements.map((e) => (
+    <Table.Tr
+      key={e.attendee.character.name + e.softReserve.itemId}
+      style={{ visibility: filter(e) ? "visible" : "hidden" }}
     >
-      <Table>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>
-              <Select
-                data={Object.keys(classes)}
-                onChange={(value) =>
-                  setClassFilter(value as Class || undefined)}
-                value={classFilter}
-                withCheckIcon
-                checkIconPosition="right"
-                renderOption={renderClass}
-                rightSection={classFilter && <ClassIcon xclass={classFilter} />}
-                comboboxProps={{ width: 140, position: "bottom-start" }}
-                w={40}
-              />
-            </Table.Th>
-            <Table.Th>
+      <Table.Td>
+        <Tooltip
+          label={`${e.attendee.character.spec} ${e.attendee.character.class}`}
+        >
+          <Group gap={2} wrap="nowrap">
+            <ClassIcon xclass={e.attendee.character.class} />
+            <ClassIcon
+              xclass={e.attendee.character.class}
+              spec={e.attendee.character.spec}
+            />
+          </Group>
+        </Tooltip>
+      </Table.Td>
+      <Table.Td>
+        <Title order={6} lineClamp={1}>
+          {e.attendee.character.name}
+        </Title>
+      </Table.Td>
+      <Table.Td>
+        <ItemNameAndIcon
+          item={items.filter((item) => item.id == e.softReserve.itemId)[0]}
+        />
+      </Table.Td>
+    </Table.Tr>
+  ))
+  return (
+    <Table>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th>
+            <Select
+              data={Object.keys(classes)}
+              onChange={(value) => setClassFilter(value as Class || undefined)}
+              value={classFilter}
+              rightSection={classFilter
+                ? <ClassIcon xclass={classFilter} />
+                : undefined}
+              rightSectionPointerEvents="none"
+              renderOption={renderClass(classFilter)}
+              comboboxProps={{ width: 140, position: "bottom-start" }}
+              w={40}
+            />
+          </Table.Th>
+          <Table.Th>
+            <Group wrap="nowrap" gap={0}>
               <TextInput
                 placeholder="Name"
                 onChange={(event) =>
                   setNameFilter(event.currentTarget.value || undefined)}
                 value={nameFilter || ""}
+                rightSection={
+                  <SortButton
+                    active={sortBy == "name"}
+                    activate={() => setSortBy("name")}
+                    asc={!sortDesc}
+                    sortDesc={() => setSortDesc(true)}
+                    reset={() => {
+                      setSortBy("class")
+                      setSortDesc(false)
+                    }}
+                  />
+                }
               />
-            </Table.Th>
-            <Table.Th>
-              <TextInput
-                placeholder="Reserved Item"
-                onChange={(event) =>
-                  setItemFilter(event.currentTarget.value || undefined)}
-                value={itemFilter || ""}
-              />
-            </Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
-      </Table>
-    </Box>
+            </Group>
+          </Table.Th>
+          <Table.Th>
+            <TextInput
+              placeholder="Item"
+              onChange={(event) =>
+                setItemFilter(event.currentTarget.value || undefined)}
+              value={itemFilter || ""}
+              rightSection={
+                <SortButton
+                  active={sortBy == "item"}
+                  activate={() => setSortBy("item")}
+                  asc={!sortDesc}
+                  sortDesc={() => setSortDesc(true)}
+                  reset={() => {
+                    setSortBy("class")
+                    setSortDesc(false)
+                  }}
+                />
+              }
+            />
+          </Table.Th>
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody>{rows}</Table.Tbody>
+    </Table>
   )
 }
+
+export const SortButton = (
+  { active, activate, sortDesc, reset, asc }: {
+    active: boolean
+    activate: () => void
+    reset: () => void
+    sortDesc: () => void
+    asc: boolean
+  },
+) => (
+  <ActionIcon
+    color={active ? "" : "lightgray"}
+    variant={active ? "" : "subtle"}
+    onClick={() => {
+      if (!active) {
+        activate()
+      } else if (!asc) {
+        reset()
+      } else {
+        sortDesc()
+      }
+    }}
+  >
+    {active
+      ? asc ? <IconSortAscendingLetters /> : <IconSortDescendingLetters />
+      : <IconArrowsSort />}
+  </ActionIcon>
+)

@@ -1,5 +1,6 @@
-import type { Character } from "../types/types.ts"
-import { Group, Image, Title, Tooltip } from "@mantine/core"
+import type { Character, Class } from "../types/types.ts"
+import { CheckIcon, Group, Image, Title, Tooltip } from "@mantine/core"
+import { IconCheck } from "@tabler/icons-react"
 import type { SelectProps } from "@mantine/core"
 
 export const CharacterNameClassSpec = (
@@ -16,14 +17,38 @@ export const CharacterNameClassSpec = (
   </Tooltip>
 )
 
-export const renderClass: SelectProps["renderOption"] = (
+export const renderClass: (
+  selectedClass?: Class,
+) => SelectProps["renderOption"] = (selectedClass) =>
+(
   { option },
 ) => (
-  <Group gap="xs">
+  <Group gap="xs" w="100%" wrap="nowrap">
     <ClassIcon xclass={option.value} />
     {option.label}
+    <Group justify="right" w="100%">
+      {selectedClass == option.value ? <IconCheck /> : null}
+    </Group>
   </Group>
 )
+
+export const renderSpec: (
+  selectedClass: Class,
+  selectedSpec?: string | null,
+) => SelectProps["renderOption"] = (selectedClass, selectedSpec) =>
+(
+  { option },
+) => (selectedClass
+  ? (
+    <Group gap="xs" w="100%" wrap="nowrap">
+      <ClassIcon xclass={selectedClass} spec={option.value || null} />
+      {option.label}
+      <Group justify="right" w="100%">
+        {selectedSpec == option.value ? <CheckIcon height={10} /> : null}
+      </Group>
+    </Group>
+  )
+  : null)
 
 export const ClassIcon = (
   { spec, xclass }: { xclass?: string | null; spec?: string | null },
