@@ -38,12 +38,30 @@ export const ItemNameAndIcon = ({ item }: { item: Item }) => (
   </Group>
 )
 
+const reservedByOthers = (srCount: number) => {
+  const otherSRs = srCount - 1
+
+  let srMaybePlural = null
+  if (otherSRs > 1) {
+    srMaybePlural = "SRs"
+  } else {
+    srMaybePlural = "SR"
+  }
+
+  if (otherSRs <= 0) {
+    return null
+  }
+
+  return <p>({otherSRs} other {srMaybePlural})</p>
+}
+
 export const SelectableItem = ({
   item,
   onItemClick,
   onItemLongClick,
   selectedItemIds,
   showTooltipItemId,
+  srCount,
   deleteMode,
   style,
 }: {
@@ -52,6 +70,7 @@ export const SelectableItem = ({
   selectedItemIds?: number[]
   showTooltipItemId?: number
   item: Item
+  srCount: number
   deleteMode?: boolean
   style?: React.CSSProperties
 }) => {
@@ -94,6 +113,7 @@ export const SelectableItem = ({
         mr={deleteMode ? 0 : 10}
       >
         <ItemNameAndIcon item={item} />
+        {reservedByOthers(srCount)}
         {deleteMode
           ? <CloseButton />
           : <Checkbox checked={selectedItemIds?.includes(item.id)} size="md" />}
@@ -109,6 +129,7 @@ export const ReactWindowSelectableItem = ({
   onItemClick,
   onItemLongClick,
   showTooltipItemId,
+  srCounter,
   style,
   deleteMode = false,
 }: RowComponentProps<{
@@ -116,6 +137,7 @@ export const ReactWindowSelectableItem = ({
   onItemLongClick: (item_id: number) => void
   selectedItemIds: number[]
   items: Item[]
+  srCounter: Map
   showTooltipItemId?: number
   deleteMode?: boolean
 }>) => {
@@ -126,6 +148,7 @@ export const ReactWindowSelectableItem = ({
       onItemClick={onItemClick}
       onItemLongClick={onItemLongClick}
       showTooltipItemId={showTooltipItemId}
+      srCount={srCounter.get(items[index].id) || 0}
       deleteMode={deleteMode}
       style={style}
     />

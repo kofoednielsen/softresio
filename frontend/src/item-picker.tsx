@@ -15,6 +15,7 @@ export const ItemPicker = ({
   open,
   setOpen,
   selectedClass,
+  srCounter,
 }: {
   selectedItemIds: number[]
   setSelectedItemIds: (itemIds: number[]) => void
@@ -22,6 +23,7 @@ export const ItemPicker = ({
   open: boolean
   setOpen: (open: boolean) => void
   selectedClass: Class | null
+  srCounter: Map,
 }) => {
   const [showTooltipItemId, setShowTooltipItemId] = useState<number>()
   const [slotFilter, setSlotFilter] = useState<string | null>()
@@ -149,6 +151,7 @@ export const ItemPicker = ({
             selectedItemIds,
             showTooltipItemId,
             onItemLongClick,
+            srCounter,
           }}
         />
       </Stack>

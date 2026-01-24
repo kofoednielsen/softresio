@@ -40,6 +40,13 @@ export const CreateSr = (
   const [characterName, setCharacterName] = useState("")
   const [selectedItemIds, setSelectedItemIds] = useState<number[]>([])
 
+  const srCounter = new Map()
+  for (const attendee of sheet.attendees) {
+    for (const sr of attendee.softReserves) {
+      srCounter.set(sr.itemId, (srCounter.get(sr.itemId) || 0) + 1)
+    }
+  }
+
   const submitSr = () => {
     if (
       selectedClass == undefined || selectedSpec == undefined ||
@@ -176,6 +183,7 @@ export const CreateSr = (
                     )}
                   onItemLongClick={() => {}}
                   deleteMode
+                  srCount={(srCounter.get(itemId) || 0)}
                 />
               ))}
               {Array.from({
@@ -216,6 +224,7 @@ export const CreateSr = (
         open={itemPickerOpen}
         setOpen={setItemPickerOpen}
         selectedClass={selectedClass || null}
+        srCounter={srCounter}
       />
     </Paper>
   )
