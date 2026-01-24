@@ -138,7 +138,7 @@
       "name": "Ethereal Boots of Ascendancy",
       "slot": "Unknown",
       "type": null,
-      "classes": [],
+      "classes": ["Paladin"],
       "quality": 4,
       "tooltip": "<div class=\"tw-tt\"><b class=\"q4\">Ethereal Boots of Ascendancy</b><span>Binds when picked up</span><div><div></div><div></div></div><span>Classes: Paladin, Hunter, Rogue, Shaman, Mage<br/>Requires Level 60</span></div>",
       "icon": "inv_boots_cloth_01.png"
