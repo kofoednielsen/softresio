@@ -6,6 +6,21 @@ on:
     branches: main
 
 jobs:
+  json-validator:
+    name: JSON validator
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Validate JSON files
+        run: |
+          for f in backend/instances/*.json; do
+            if ! jq -e '.' "$f" > /dev/null; then
+              echo "$f is invalid"
+              exit 1
+            fi
+            echo "$f is valid"
+          done
   frontend-types:
     name: Frontend Types
     runs-on: ubuntu-latest
@@ -70,7 +85,7 @@ jobs:
   build:
     name: Build
     if: github.ref == 'refs/heads/main'
-    needs: [frontend-types, frontend-formatting, backend-types, backend-formatting]
+    needs: [frontend-types, frontend-formatting, backend-types, backend-formatting, json-formatting]
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
