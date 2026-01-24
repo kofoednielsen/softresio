@@ -68,7 +68,10 @@ const ItemComponent = ({
   style?: React.CSSProperties
 }) => {
   const { hovered, ref } = useHover()
-  const handlers = useLongPress(() => onItemLongClick(item.id))
+  const handlers = useLongPress((event) => {
+    event.preventDefault()
+    onItemLongClick(item.id)
+  })
 
   return (
     <Tooltip

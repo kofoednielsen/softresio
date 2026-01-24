@@ -138,8 +138,14 @@ export function CreateRaid() {
                   setUseSrPlus(event.currentTarget.value ? true : false)}
                 label="Use SR+"
               />
+              <input
+                id="username"
+                style={{ display: "none" }}
+                value="softres.io"
+              />
               <PasswordInput
                 label="Admin password"
+                type=""
                 value={adminPassword}
                 withAsterisk={adminPassword == ""}
                 onChange={(event) =>
