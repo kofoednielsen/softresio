@@ -176,7 +176,8 @@ export const CreateSr = (
                     )}
                   onItemLongClick={() => {}}
                   deleteMode
-                  srCount={(srCounter.get(itemId) || 0)}
+                  user={user}
+                  attendees={sheet.attendees}
                 />
               ))}
               {Array.from({
@@ -217,7 +218,8 @@ export const CreateSr = (
         open={itemPickerOpen}
         setOpen={setItemPickerOpen}
         selectedClass={selectedClass || null}
-        srCounter={srCounter}
+        user={user}
+        attendees={sheet.attendees}
       />
     </Paper>
   )

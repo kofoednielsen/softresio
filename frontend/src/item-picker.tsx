@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { CloseButton, Group, Input, Modal, Select, Stack } from "@mantine/core"
 import { IconSearch } from "@tabler/icons-react"
 import { itemFilters } from "./item-filters.ts"
-import type { Class, Item } from "../types/types.ts"
+import type { Attendee, Class, Item, User } from "../types/types.ts"
 import { useDebounce } from "use-debounce"
 import { List } from "react-window"
 
@@ -15,7 +15,8 @@ export const ItemPicker = ({
   open,
   setOpen,
   selectedClass,
-  srCounter,
+  user,
+  attendees,
 }: {
   selectedItemIds: number[]
   setSelectedItemIds: (itemIds: number[]) => void
@@ -23,7 +24,8 @@ export const ItemPicker = ({
   open: boolean
   setOpen: (open: boolean) => void
   selectedClass: Class | null
-  srCounter: Map,
+  user: User
+  attendees: Attendee[]
 }) => {
   const [showTooltipItemId, setShowTooltipItemId] = useState<number>()
   const [slotFilter, setSlotFilter] = useState<string | null>()
@@ -147,11 +149,12 @@ export const ItemPicker = ({
           rowHeight={40}
           rowProps={{
             items: filteredItems,
+            attendees: attendees,
             onItemClick,
             selectedItemIds,
             showTooltipItemId,
             onItemLongClick,
-            srCounter,
+            user,
           }}
         />
       </Stack>

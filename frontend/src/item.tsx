@@ -1,8 +1,9 @@
 import { useHover } from "@mantine/hooks"
 import { LongPressCallbackReason, useLongPress } from "use-long-press"
-import type { Item } from "../types/types.ts"
+import type { Attendee, Item, User } from "../types/types.ts"
 import { type RowComponentProps } from "react-window"
 import {
+  Badge,
   Checkbox,
   CloseButton,
   Group,
@@ -10,8 +11,6 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core"
-
-const isTouchScreen = globalThis.matchMedia("(pointer: coarse)").matches
 
 export const ItemNameAndIcon = ({ item }: { item: Item }) => (
   <Group wrap="nowrap">
@@ -38,21 +37,23 @@ export const ItemNameAndIcon = ({ item }: { item: Item }) => (
   </Group>
 )
 
-const reservedByOthers = (srCount: number) => {
-  const otherSRs = srCount - 1
-
-  let srMaybePlural = null
-  if (otherSRs > 1) {
-    srMaybePlural = "SRs"
-  } else {
-    srMaybePlural = "SR"
-  }
-
-  if (otherSRs <= 0) {
-    return null
-  }
-
-  return <p>({otherSRs} other {srMaybePlural})</p>
+const ReservedByOthers = (
+  { itemId, user, attendees }: {
+    itemId: number
+    user: User
+    attendees: Attendee[]
+  },
+) => {
+  const otherSRs =
+    attendees.flatMap((attendee) =>
+      attendee.softReserves.map((softReserve) => ({
+        softReserve,
+        userId: attendee.user.userId,
+      }))
+    ).filter(({ softReserve, userId }) =>
+      softReserve.itemId == itemId && userId !== user.userId
+    ).length
+  return otherSRs > 0 ? <Badge circle color="orange">{otherSRs}</Badge> : null
 }
 
 export const SelectableItem = ({
@@ -61,7 +62,8 @@ export const SelectableItem = ({
   onItemLongClick,
   selectedItemIds,
   showTooltipItemId,
-  srCount,
+  user,
+  attendees,
   deleteMode,
   style,
 }: {
@@ -70,7 +72,8 @@ export const SelectableItem = ({
   selectedItemIds?: number[]
   showTooltipItemId?: number
   item: Item
-  srCount: number
+  user: User
+  attendees: Attendee[]
   deleteMode?: boolean
   style?: React.CSSProperties
 }) => {
@@ -82,6 +85,8 @@ export const SelectableItem = ({
       }
     },
   })
+
+  const isTouchScreen = globalThis.matchMedia("(pointer: coarse)").matches
 
   const highlight = !isTouchScreen && hovered || showTooltipItemId == item.id ||
     selectedItemIds?.includes(item.id)
@@ -113,10 +118,19 @@ export const SelectableItem = ({
         mr={deleteMode ? 0 : 10}
       >
         <ItemNameAndIcon item={item} />
-        {reservedByOthers(srCount)}
-        {deleteMode
-          ? <CloseButton />
-          : <Checkbox checked={selectedItemIds?.includes(item.id)} size="md" />}
+        <Group wrap="nowrap">
+          <ReservedByOthers
+            itemId={item.id}
+            user={user}
+            attendees={attendees}
+          />
+          {deleteMode ? <CloseButton /> : (
+            <Checkbox
+              checked={selectedItemIds?.includes(item.id)}
+              size="md"
+            />
+          )}
+        </Group>
       </Group>
     </Tooltip>
   )
@@ -124,22 +138,24 @@ export const SelectableItem = ({
 
 export const ReactWindowSelectableItem = ({
   index,
-  items,
   selectedItemIds,
   onItemClick,
   onItemLongClick,
   showTooltipItemId,
-  srCounter,
+  user,
   style,
   deleteMode = false,
+  items,
+  attendees,
 }: RowComponentProps<{
   onItemClick: (item_id: number) => void
   onItemLongClick: (item_id: number) => void
   selectedItemIds: number[]
-  items: Item[]
-  srCounter: Map
+  user: User
   showTooltipItemId?: number
   deleteMode?: boolean
+  items: Item[]
+  attendees: Attendee[]
 }>) => {
   return (
     <SelectableItem
@@ -148,9 +164,10 @@ export const ReactWindowSelectableItem = ({
       onItemClick={onItemClick}
       onItemLongClick={onItemLongClick}
       showTooltipItemId={showTooltipItemId}
-      srCount={srCounter.get(items[index].id) || 0}
+      user={user}
       deleteMode={deleteMode}
       style={style}
+      attendees={attendees}
     />
   )
 }
