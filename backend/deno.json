@@ -4,8 +4,8 @@
     "postgres": "npm:postgres@3.4.7"
   },
   "tasks": {
-    "start": "deno run --allow-read --allow-net --allow-sys --allow-env src/main.ts",
-    "start-dev": "deno run --allow-read --allow-net --allow-sys --allow-env --watch src/main.ts"
+    "start": "deno serve --allow-read --allow-net --allow-sys --allow-env src/main.ts",
+    "start-dev": "deno serve --allow-read --allow-net --allow-sys --allow-env --watch src/main.ts"
   },
   "fmt": {
     "semiColons": false

@@ -15,7 +15,9 @@ import useWebSocket from "react-use-websocket"
 export const RaidUpdater = (
   { loadRaid, raidId }: { loadRaid: (sheet: Sheet) => void; raidId: string },
 ) => {
-  const { lastMessage } = useWebSocket(`/api/ws/${raidId}`)
+  const { lastMessage } = useWebSocket(`/api/ws/${raidId}`, {
+    shouldReconnect: (_) => true,
+  })
   useEffect(() => {
     if (lastMessage?.data) {
       loadRaid(JSON.parse(lastMessage.data))
