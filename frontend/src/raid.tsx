@@ -7,7 +7,7 @@ import type {
   User,
 } from "../types/types.ts"
 import { useParams } from "react-router"
-import { Paper, Stack, Title } from "@mantine/core"
+import { Paper, Skeleton, Stack, Title } from "@mantine/core"
 import { CreateSr } from "./create-sr.tsx"
 import { SrList } from "./sr-list.tsx"
 import useWebSocket from "react-use-websocket"
@@ -89,6 +89,15 @@ export const Raid = () => {
             : null}
         </Paper>
         <RaidUpdater raidId={sheet.raidId} loadRaid={loadRaid} />
+      </Stack>
+    )
+  } else {
+    return (
+      <Stack>
+        <Skeleton h={68}>
+        </Skeleton>
+        <Skeleton h={404}>
+        </Skeleton>
       </Stack>
     )
   }

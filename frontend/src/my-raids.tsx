@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { formatDistanceToNow } from "date-fns"
 import { Anchor, Button, CopyButton, Paper, Table, Text } from "@mantine/core"
+import { useNavigate } from "react-router"
 import type {
   GetInstancesResponse,
   GetMyRaidsResponse,
@@ -10,6 +11,9 @@ import type {
 export function MyRaids() {
   const [raidList, setRaidList] = useState<Raid[]>()
   const [instances, setInstances] = useState<Instance[]>()
+
+  const navigate = useNavigate()
+
   const loadRaids = (raidList?: Raid[]) => {
     if (raidList) {
       return setRaidList(raidList)
@@ -57,7 +61,10 @@ export function MyRaids() {
     return (
       <Table.Tr>
         <Table.Td>
-          <Anchor href={`/${raid.sheet.raidId}`} key={raid.sheet.raidId}>
+          <Anchor
+            onClick={() => navigate(`/${raid.sheet.raidId}`)}
+            key={raid.sheet.raidId}
+          >
             <Text>{instanceName}</Text>
           </Anchor>
         </Table.Td>
