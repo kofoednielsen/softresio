@@ -2,28 +2,35 @@ import { useEffect, useState } from "react"
 import type {
   Attendee,
   Character,
+  CharacterWithId,
   Class,
   CreateSrRequest,
   CreateSrResponse,
+  GetCharactersResponse,
   Item,
   Sheet,
   User,
 } from "../types/types.ts"
 import {
+  Autocomplete,
   Button,
   Group,
   Paper,
   Select,
   Stack,
   Text,
-  TextInput,
   Title,
 } from "@mantine/core"
 import { classes } from "./class.tsx"
 import "../css/tooltip.css"
 import { ItemPicker } from "./item-picker.tsx"
 import { SelectableItem } from "./item.tsx"
-import { ClassIcon, renderClass, renderSpec } from "./class.tsx"
+import {
+  ClassIcon,
+  renderClass,
+  renderClassSpec,
+  renderSpec,
+} from "./class.tsx"
 
 export const CreateSr = (
   { items, sheet, loadRaid, user }: {
@@ -38,6 +45,7 @@ export const CreateSr = (
   const [selectedSpec, setSelectedSpec] = useState<string | null>()
   const [characterName, setCharacterName] = useState("")
   const [selectedItemIds, setSelectedItemIds] = useState<number[]>([])
+  const [myCharacters, setMyCharacters] = useState<CharacterWithId[]>([])
 
   const srCounter = new Map()
   for (const attendee of sheet.attendees) {
@@ -93,6 +101,18 @@ export const CreateSr = (
   }
 
   useEffect(() => {
+    fetch(`/api/characters`).then((r) => r.json()).then(
+      (j: GetCharactersResponse) => {
+        if (j.error) {
+          alert(j.error)
+        } else if (j.data) {
+          setMyCharacters(
+            j.data.map((character) => ({ character, id: crypto.randomUUID() })),
+          )
+        }
+      },
+    )
+
     const attendeeMe = findAttendeeMe()
     if (attendeeMe) {
       setSelectedClass(attendeeMe.character.class)
@@ -106,14 +126,26 @@ export const CreateSr = (
     <Paper shadow="sm" p="sm">
       <Stack>
         <Title order={2}>Choose your SR</Title>
-        <TextInput
+        <Autocomplete
           withAsterisk={!characterName}
-          maxLength={12}
           value={characterName}
-          onChange={(event) => setCharacterName(event.currentTarget.value)}
+          onChange={(value) => {
+            setCharacterName(value)
+          }}
+          onOptionSubmit={(value) => {
+            const choice = myCharacters.filter((c) => c.id == value)[0]
+            setSelectedSpec(choice.character.spec)
+            setSelectedClass(choice.character.class)
+            setCharacterName(choice.character.name)
+          }}
+          renderOption={renderClassSpec(myCharacters)}
+          w="200"
           label="Character name"
           placeholder="Character name"
-          w="200"
+          data={myCharacters.map((e) => ({
+            label: e.character.name,
+            value: e.id,
+          }))}
         />
         <Group>
           <Select

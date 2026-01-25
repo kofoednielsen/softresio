@@ -2,10 +2,12 @@ import postgres, { TransactionSql } from "postgres"
 import process from "node:process"
 import type {
   Attendee,
+  Character,
   CreateRaidRequest,
   CreateRaidResponse,
   CreateSrRequest,
   CreateSrResponse,
+  GetCharactersResponse,
   GetInstancesResponse,
   GetMyRaidsResponse,
   GetRaidResponse,
@@ -257,21 +259,46 @@ app.get(
   }),
 )
 
-app.get("/api/raids", async (c) => {
-  const user = await getOrCreateUser(c)
-  const raids = await sql<
+const getRecentRaids = async (user: User, n?: number): Promise<Raid[]> => {
+  return await sql<
     Raid[]
   >`select raid#-'{sheet,password}'->'sheet' as sheet
-      from raids
-      where
-        raid @> ${{
+        from raids
+        where
+          raid @> ${{
     sheet: { attendees: [{ user: { userId: user.userId } }] },
   } as never}
         or
         raid @> ${{ sheet: { admins: [{ userId: user.userId }] } } as never}
         order by raid->'sheet'->'time' desc
+        limit ${n || null} 
         ;`
-  console.log(raids)
+}
+
+app.get("/api/characters", async (c) => {
+  const user = await getOrCreateUser(c)
+  const raids = await getRecentRaids(user, 20)
+  const distinctCharacters: Character[] = []
+  const characters = raids.flatMap((raid) =>
+    raid.sheet.attendees.map((attendee) => attendee.character)
+  )
+  for (const char of characters) {
+    if (
+      !distinctCharacters.some((c) =>
+        c.name == char.name && c.class == char.class && c.spec == char.spec
+      )
+    ) {
+      distinctCharacters.push(char)
+    }
+  }
+
+  const response: GetCharactersResponse = { data: distinctCharacters, user }
+  return c.json(response)
+})
+
+app.get("/api/raids", async (c) => {
+  const user = await getOrCreateUser(c)
+  const raids = await getRecentRaids(user)
   const response: GetMyRaidsResponse = { data: raids, user }
   return c.json(response)
 })

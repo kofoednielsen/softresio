@@ -1,8 +1,8 @@
-export interface OnChangeEvent {
-  currentTarget: {
-    value: string;
-  };
+export type CharacterWithId = {
+  id: string
+  character: Character
 }
+
 export type Class =
   | "Warrior"
   | "Mage"
@@ -11,108 +11,110 @@ export type Class =
   | "Druid"
   | "Warlock"
   | "Rogue"
-  | "Shaman";
+  | "Shaman"
 export interface Character {
-  name: string;
-  class: Class;
-  spec: string;
+  name: string
+  class: Class
+  spec: string
 }
 
 export interface User {
-  userId: string; // uuidv4
-  issuer: string;
+  userId: string // uuidv4
+  issuer: string
 }
 
 export interface SoftReserve {
-  itemId: number;
-  srPlus: number | null;
-  comment: string | null;
+  itemId: number
+  srPlus: number | null
+  comment: string | null
 }
 
 export interface Attendee {
-  character: Character;
-  softReserves: SoftReserve[];
-  user: User;
+  character: Character
+  softReserves: SoftReserve[]
+  user: User
 }
 
 export interface Password {
-  salt: string;
-  hash: string;
+  salt: string
+  hash: string
 }
 
 export interface Activity {
-  time: string; // rfc3339
-  user: User;
+  time: string // rfc3339
+  user: User
   action:
     | "SRDeleted"
     | "SRCreated"
     | "SRUpdated"
     | "RaidCreated"
-    | "RaidUpdated";
-  softReserve: SoftReserve;
+    | "RaidUpdated"
+  softReserve: SoftReserve
 }
 
 export interface Sheet {
-  raidId: string;
-  useSrPlus: boolean;
-  instanceId: number;
-  time: string; // rfc 3339
-  attendees: Attendee[];
-  admins: User[];
-  password: Password;
-  activityLog: Activity[];
-  srCount: number;
+  raidId: string
+  useSrPlus: boolean
+  instanceId: number
+  time: string // rfc 3339
+  attendees: Attendee[]
+  admins: User[]
+  password: Password
+  activityLog: Activity[]
+  srCount: number
 }
 
 export interface Raid {
-  sheet: Sheet;
+  sheet: Sheet
 }
 
 interface GenericResponse<T> {
-  data?: T;
-  error?: string;
-  user: User;
+  data?: T
+  error?: string
+  user: User
 }
 
 export interface CreateRaidRequest {
-  instanceId: number;
-  description: string;
-  useSrPlus: boolean;
-  adminPassword: string;
-  time: string; //rfc 3339
-  srCount: number;
+  instanceId: number
+  description: string
+  useSrPlus: boolean
+  adminPassword: string
+  time: string //rfc 3339
+  srCount: number
 }
 
-export type GetInstancesResponse = GenericResponse<Instance[]>;
+export type GetInstancesResponse = GenericResponse<Instance[]>
 
-export type CreateRaidResponse = GenericResponse<{ raidId: string }>;
+export type CreateRaidResponse = GenericResponse<{ raidId: string }>
 
-export type CreateSrResponse = GenericResponse<Sheet>;
+export type CreateSrResponse = GenericResponse<Sheet>
 
-export type GetRaidResponse = GenericResponse<Sheet>;
+export type GetRaidResponse = GenericResponse<Sheet>
 
-export type GetMyRaidsResponse = GenericResponse<Raid[]>;
+export type GetMyRaidsResponse = GenericResponse<Raid[]>
+
+export type GetCharactersResponse = GenericResponse<Character[]>
 
 export interface CreateSrRequest {
-  raidId: string;
-  character: Character;
-  selectedItemIds: number[];
+  raidId: string
+  character: Character
+  selectedItemIds: number[]
 }
 
 export interface Item {
-  id: number;
-  tooltip: string;
-  icon: string;
-  name: string;
-  slot: string;
-  type: string;
-  classes: Class[];
-  quality: 1 | 2 | 3 | 4 | 5;
+  id: number
+  tooltip: string
+  icon: string
+  name: string
+  slot: string
+  type: string
+  classes: Class[]
+  quality: 1 | 2 | 3 | 4 | 5
 }
 
 export interface Instance {
-  id: number;
-  name: string;
-  shortname: string;
-  items: Item[];
+  id: number
+  name: string
+  shortname: string
+  items: Item[]
 }
