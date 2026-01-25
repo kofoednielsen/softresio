@@ -27,4 +27,4 @@ COPY backend/types/ ./types/
 COPY backend/instances/ ./instances/
 COPY --from=frontend /app/dist ./static/
 
-CMD ["deno", "task", "start"]
+CMD ["deno", "serve", "--allow-all", "--parallel", "src/main.ts"]

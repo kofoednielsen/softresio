@@ -42,9 +42,14 @@ services:
     environment:
       POSTGRES_PASSWORD: "<SECRET_DATABASE_PASSWORD>"
       POSTGRES_USER: "softres"
+    volumes:
+      - "softres-database:/var/lib/postgresql/18/docker"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready --username softres"]
       interval: 1s
       timeout: 5s
       retries: 5
+
+volumes:
+  softres-database:
 ```

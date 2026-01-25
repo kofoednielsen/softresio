@@ -130,6 +130,7 @@ export function CreateRaid() {
             placeholder="Pick date and time"
           />
           <Switch
+            disabled
             value={useSrPlus ? 1 : 0}
             onChange={(event) =>
               setUseSrPlus(event.currentTarget.value ? true : false)}
