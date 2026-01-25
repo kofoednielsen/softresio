@@ -8,7 +8,7 @@ import type {
   Instance,
   Raid,
 } from "../types/types.ts"
-export function MyRaids() {
+export const MyRaids = () => {
   const [raidList, setRaidList] = useState<Raid[]>()
   const [instances, setInstances] = useState<Instance[]>()
 
@@ -18,9 +18,7 @@ export function MyRaids() {
     if (raidList) {
       return setRaidList(raidList)
     }
-    console.log("what")
     fetch(`/api/raids`).then((r) => {
-      console.log(r)
       return r.json()
     }).then(
       (j: GetMyRaidsResponse) => {
@@ -47,7 +45,6 @@ export function MyRaids() {
   }, [])
 
   function idToInstance(id: number): string {
-    console.log(id)
     if (!instances) return ""
     const matches = instances.filter((instance) => instance.id == id)
     return matches[0].name

@@ -31,6 +31,7 @@ export const Raid = () => {
   const [sheet, setSheet] = useState<Sheet>()
   const [user, setUser] = useState<User>()
   const [instance, setInstance] = useState<Instance>()
+  const [instances, setInstances] = useState<Instance[]>()
 
   const loadRaid = (sheet?: Sheet) => {
     if (sheet) {
@@ -51,25 +52,29 @@ export const Raid = () => {
   useEffect(loadRaid, [])
 
   useEffect(() => {
-    if (sheet) {
-      fetch("/api/instances")
-        .then((r) => r.json())
-        .then((j: GetInstancesResponse) => {
-          if (j.error) {
-            alert(j.error)
-          } else if (j.data) {
-            const matches = j.data.filter((i: Instance) =>
-              i.id == sheet.instanceId
-            )
-            if (matches.length == 1) {
-              setInstance(matches[0])
-            } else {
-              alert("Could not find instance")
-            }
-          }
-        })
+    fetch("/api/instances")
+      .then((r) => r.json())
+      .then((j: GetInstancesResponse) => {
+        if (j.error) {
+          alert(j.error)
+        } else if (j.data) {
+          setInstances(j.data)
+        }
+      })
+  }, [])
+
+  useEffect(() => {
+    if (sheet && instances) {
+      const matches = instances.filter((i: Instance) =>
+        i.id == sheet.instanceId
+      )
+      if (matches.length == 1) {
+        setInstance(matches[0])
+      } else {
+        alert("Could not find instance")
+      }
     }
-  }, [sheet?.instanceId])
+  }, [sheet, instances])
 
   if (sheet && instance && user) {
     return (
