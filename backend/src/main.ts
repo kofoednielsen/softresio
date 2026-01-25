@@ -1,4 +1,4 @@
-import postgres, { Row, RowList, TransactionSql } from "postgres"
+import postgres, { TransactionSql } from "postgres"
 import process from "node:process"
 import type {
   Attendee,
@@ -14,7 +14,7 @@ import type {
   User,
 } from "../types/types.ts"
 import { Hono } from "hono"
-import { serveStatic } from "hono/deno"
+import { serveStatic, upgradeWebSocket } from "hono/deno"
 import type { Context } from "hono"
 import { getCookie, setCookie } from "hono/cookie"
 import * as fs from "node:fs"
@@ -88,8 +88,13 @@ create or replace trigger raid_updated
   execute function notify_raid_changed();
 `
 
-await sql.listen('raid_updated', raid => {
-  console.log(raid)
+await sql.listen("raid_updated", (raid) => {
+  const sheet = JSON.parse(raid).sheet
+  if (sheet.raidId in clients) {
+    for (const ws of clients[sheet.raidId]) {
+      ws.send(JSON.stringify(sheet))
+    }
+  }
 })
 
 const app = new Hono()
@@ -223,7 +228,22 @@ app.get("/api/raid/:raidId", async (c) => {
   return c.json(response)
 })
 
-// Serve the frontend
+const clients: { [raidId: string]: any[] } = {}
+
+app.get(
+  "/api/ws/:raidId",
+  upgradeWebSocket((c) => {
+    return {
+      onOpen(event, ws) {
+        const raidId = c.req.param("raidId")
+        clients[raidId] = [ws, ...clients[raidId] || []]
+      },
+      onClose(event, ws) {
+        const raidId = c.req.param("raidId")
+      },
+    }
+  }),
+)
 app.use("/assets/*", serveStatic({ root: "./static" }))
 app.use("*", serveStatic({ path: "./static/index.html" }))
 

@@ -16,6 +16,7 @@
     "npm:globals@^16.5.0": "16.5.0",
     "npm:react-dom@^19.2.0": "19.2.3_react@19.2.3",
     "npm:react-router@^7.12.0": "7.12.0_react@19.2.3_react-dom@19.2.3__react@19.2.3",
+    "npm:react-use-websocket@^4.13.0": "4.13.0",
     "npm:react-window@^2.2.5": "2.2.5_react@19.2.3_react-dom@19.2.3__react@19.2.3",
     "npm:react@^19.2.0": "19.2.3",
     "npm:typescript-eslint@^8.46.4": "8.53.1_eslint@9.39.2_typescript@5.9.3_@typescript-eslint+parser@8.53.1__eslint@9.39.2__typescript@5.9.3",
@@ -1334,6 +1335,9 @@
         "use-latest"
       ]
     },
+    "react-use-websocket@4.13.0": {
+      "integrity": "sha512-anMuVoV//g2N76Wxqvqjjo1X48r9Np3y1/gMl7arX84tAPXdy5R7sB5lO5hvCzQRYjqXwV8XMAiEBOUbyrZFrw=="
+    },
     "react-window@2.2.5_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
       "integrity": "sha512-6viWvPSZvVuMIe9hrl4IIZoVfO/npiqOb03m4Z9w+VihmVzBbiudUrtUqDpsWdKvd/Ai31TCR25CBcFFAUm28w==",
       "dependencies": [
@@ -1595,6 +1599,7 @@
         "npm:globals@^16.5.0",
         "npm:react-dom@^19.2.0",
         "npm:react-router@^7.12.0",
+        "npm:react-use-websocket@^4.13.0",
         "npm:react-window@^2.2.5",
         "npm:react@^19.2.0",
         "npm:typescript-eslint@^8.46.4",

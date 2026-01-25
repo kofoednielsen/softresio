@@ -10,6 +10,19 @@ import { useParams } from "react-router"
 import { Paper, Title } from "@mantine/core"
 import { CreateSr } from "./create-sr.tsx"
 import { SrList } from "./sr-list.tsx"
+import useWebSocket from "react-use-websocket"
+
+export const RaidUpdater = (
+  { loadRaid, raidId }: { loadRaid: (sheet: Sheet) => void; raidId: string },
+) => {
+  const { lastMessage } = useWebSocket(`/api/ws/${raidId}`)
+  useEffect(() => {
+    if (lastMessage?.data) {
+      loadRaid(JSON.parse(lastMessage.data))
+    }
+  }, [lastMessage])
+  return null
+}
 
 export const Raid = () => {
   const params = useParams()
@@ -73,6 +86,7 @@ export const Raid = () => {
         <Paper shadow="sm">
           <SrList attendees={sheet.attendees} items={instance.items} />
         </Paper>
+        <RaidUpdater raidId={sheet.raidId} loadRaid={loadRaid} />
       </>
     )
   }
