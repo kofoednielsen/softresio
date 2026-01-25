@@ -11,7 +11,6 @@ import {
   Switch,
   Text,
   Textarea,
-  Title,
 } from "@mantine/core"
 import { DateTimePicker } from "@mantine/dates"
 
@@ -81,7 +80,6 @@ export function CreateRaid() {
     <>
       <Paper shadow="sm" p="sm">
         <Stack gap="md">
-          <Title order={2}>Create a new raid</Title>
           <Select
             withAsterisk={instanceId == undefined}
             label="Instance"

@@ -81,7 +81,7 @@ export const SelectableItem = ({
   const handlers = useLongPress(() => onItemLongClick(item.id), {
     onCancel: (_, meta) => {
       if (meta.reason == LongPressCallbackReason.CancelledByRelease) {
-        onItemClick(item.id)
+        setTimeout(() => onItemClick(item.id), 50)
       }
     },
   })
@@ -93,7 +93,6 @@ export const SelectableItem = ({
 
   return (
     <Tooltip
-      m={0}
       p={0}
       key={item.id}
       opened={showTooltipItemId == item.id || (!isTouchScreen && hovered)}
@@ -106,7 +105,6 @@ export const SelectableItem = ({
     >
       <Group
         {...handlers()}
-        onClick={() => {}}
         ref={ref}
         style={style}
         justify="space-between"
@@ -116,7 +114,6 @@ export const SelectableItem = ({
         }`}
         p={8}
         key={item.id}
-        mr={deleteMode ? 0 : 10}
       >
         <ItemNameAndIcon item={item} />
         <Group wrap="nowrap">

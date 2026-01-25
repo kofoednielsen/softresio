@@ -19,7 +19,6 @@ import {
   Select,
   Stack,
   Text,
-  Title,
 } from "@mantine/core"
 import { classes } from "./class.tsx"
 import "../css/tooltip.css"
@@ -125,7 +124,6 @@ export const CreateSr = (
   return (
     <Paper shadow="sm" p="sm">
       <Stack>
-        <Title order={2}>Choose your SR</Title>
         <Autocomplete
           withAsterisk={!characterName}
           value={characterName}
@@ -147,7 +145,7 @@ export const CreateSr = (
             value: e.id,
           }))}
         />
-        <Group>
+        <Group wrap="nowrap">
           <Select
             placeholder="Class"
             searchable
