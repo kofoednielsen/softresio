@@ -106,6 +106,7 @@ export const SelectableItem = ({
     >
       <Group
         {...handlers()}
+        onClick={() => {}}
         ref={ref}
         style={style}
         justify="space-between"
