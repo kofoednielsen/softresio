@@ -85,7 +85,7 @@ jobs:
   build:
     name: Build
     if: github.ref == 'refs/heads/main'
-    needs: [frontend-types, frontend-formatting, backend-types, backend-formatting, json-formatting]
+    needs: [frontend-types, frontend-formatting, backend-types, backend-formatting, json-validator]
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
