@@ -7,7 +7,7 @@ import type {
   User,
 } from "../types/types.ts"
 import { useParams } from "react-router"
-import { Paper, Title } from "@mantine/core"
+import { Paper, Stack, Title } from "@mantine/core"
 import { CreateSr } from "./create-sr.tsx"
 import { SrList } from "./sr-list.tsx"
 import useWebSocket from "react-use-websocket"
@@ -71,23 +71,23 @@ export const Raid = () => {
 
   if (sheet && instance && user) {
     return (
-      <>
+      <Stack>
         <Paper shadow="sm" p="sm">
           <Title>{instance.name}</Title>
         </Paper>
-        <br />
         <CreateSr
           loadRaid={loadRaid}
           items={instance.items}
           sheet={sheet}
           user={user}
         />
-        <br />
-        <Paper shadow="sm">
-          <SrList attendees={sheet.attendees} items={instance.items} />
+        <Paper shadow="sm" mb="md">
+          {sheet.attendees.length > 0
+            ? <SrList attendees={sheet.attendees} items={instance.items} />
+            : null}
         </Paper>
         <RaidUpdater raidId={sheet.raidId} loadRaid={loadRaid} />
-      </>
+      </Stack>
     )
   }
 }
