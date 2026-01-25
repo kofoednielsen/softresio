@@ -69,6 +69,29 @@ await sql`
   create index if not exists idxraids ON raids using gin ( raid );
 `
 
+await sql`
+create or replace function notify_raid_changed()
+  returns trigger
+as $$
+begin
+  perform pg_notify('raid_updated', new.raid::text);
+  return null;
+end;
+$$ language plpgsql
+`
+
+await sql`
+create or replace trigger raid_updated
+  after update
+  on raids
+  for each row
+  execute function notify_raid_changed();
+`
+
+await sql.listen('raid_updated', raid => {
+  console.log(raid)
+})
+
 const app = new Hono()
 
 const generateRaidId = (): string => {
