@@ -1,17 +1,17 @@
 export interface OnChangeEvent {
-    currentTarget: {
-        value: string
-    }
+  currentTarget: {
+    value: string;
+  };
 }
 export type Class =
-    | "Warrior"
-    | "Mage"
-    | "Paladin"
-    | "Priest"
-    | "Druid"
-    | "Warlock"
-    | "Rogue"
-    | "Shaman";
+  | "Warrior"
+  | "Mage"
+  | "Paladin"
+  | "Priest"
+  | "Druid"
+  | "Warlock"
+  | "Rogue"
+  | "Shaman";
 export interface Character {
   name: string;
   class: Class;
@@ -83,13 +83,13 @@ export interface CreateRaidRequest {
   srCount: number;
 }
 
-export type GetInstancesResponse = GenericResponse<Instance[]>
+export type GetInstancesResponse = GenericResponse<Instance[]>;
 
-export type CreateRaidResponse = GenericResponse<{ raidId: string }>
+export type CreateRaidResponse = GenericResponse<{ raidId: string }>;
 
-export type CreateSrResponse = GenericResponse<Sheet>
-    
-export type GetRaidResponse = GenericResponse<Sheet>
+export type CreateSrResponse = GenericResponse<Sheet>;
+
+export type GetRaidResponse = GenericResponse<Sheet>;
 
 export type GetMyRaidsResponse = GenericResponse<Raid[]>;
 
@@ -116,4 +116,3 @@ export interface Instance {
   shortname: string;
   items: Item[];
 }
-
