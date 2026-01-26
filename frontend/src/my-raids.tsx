@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { formatDistanceToNow } from "date-fns"
-import { Anchor, Paper, Table, Text } from "@mantine/core"
+import { Anchor, Paper, Stack, Table, Text, Title } from "@mantine/core"
 import { useNavigate } from "react-router"
 import type {
   GetInstancesResponse,
@@ -10,37 +10,10 @@ import type {
 } from "../types/types.ts"
 import { CopyClipboardButton, raidIdToUrl } from "./copy-clipboard-button.tsx"
 
-export const MyRaids = () => {
-  const [raidList, setRaidList] = useState<Raid[]>()
-  const [instances, setInstances] = useState<Instance[]>()
-
+const MyRaidItem = (
+  { instances, raids }: { instances: Instance[]; raids: Raid[] },
+) => {
   const navigate = useNavigate()
-
-  useEffect(() => {
-    fetch(`/api/raids`).then((r) => {
-      return r.json()
-    }).then(
-      (j: GetMyRaidsResponse) => {
-        if (j.error) {
-          alert(j.error)
-        } else if (j.data) {
-          setRaidList(j.data)
-        }
-      },
-    )
-  }, [])
-
-  useEffect(() => {
-    fetch("/api/instances")
-      .then((r) => r.json())
-      .then((j: GetInstancesResponse) => {
-        if (j.error) {
-          alert(j.error)
-        } else if (j.data) {
-          setInstances(j.data)
-        }
-      })
-  }, [])
 
   function idToInstance(id: number): string {
     if (!instances) return ""
@@ -48,10 +21,7 @@ export const MyRaids = () => {
     return matches[0].name
   }
 
-  const raidLinks = raidList?.map((raid) => {
-    if (!instances || !raidList) {
-      return <></>
-    }
+  const raidLinks = raids.map((raid) => {
     const instanceName = idToInstance(raid.sheet.instanceId)
     return (
       <Table.Tr>
@@ -99,5 +69,65 @@ export const MyRaids = () => {
         </Table.Tbody>
       </Table>
     </Paper>
+  )
+}
+
+export const MyRaids = () => {
+  const [raidList, setRaidList] = useState<Raid[]>()
+  const [instances, setInstances] = useState<Instance[]>()
+
+  useEffect(() => {
+    fetch(`/api/raids`).then((r) => {
+      return r.json()
+    }).then(
+      (j: GetMyRaidsResponse) => {
+        if (j.error) {
+          alert(j.error)
+        } else if (j.data) {
+          setRaidList(j.data)
+        }
+      },
+    )
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/instances")
+      .then((r) => r.json())
+      .then((j: GetInstancesResponse) => {
+        if (j.error) {
+          alert(j.error)
+        } else if (j.data) {
+          setInstances(j.data)
+        }
+      })
+  }, [])
+
+  raidList?.sort((raid1, raid2) =>
+    Date.parse(raid2.sheet.time) - Date.parse(raid1.sheet.time)
+  )
+
+  if (!instances || !raidList) {
+    return <></>
+  }
+
+  const upcomingRaids = []
+  const pastRaids = []
+
+  const today = (new Date()).getDate()
+  for (const raid of raidList) {
+    if (new Date(Date.parse(raid.sheet.time)).getDate() < today) {
+      pastRaids.push(raid)
+    } else {
+      upcomingRaids.push(raid)
+    }
+  }
+
+  return (
+    <Stack>
+      <Title>Upcoming</Title>
+      <MyRaidItem instances={instances} raids={upcomingRaids} />
+      <Title>Past</Title>
+      <MyRaidItem instances={instances} raids={pastRaids} />
+    </Stack>
   )
 }
