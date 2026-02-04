@@ -5,6 +5,8 @@ import type {
   Character,
   CreateEditRaidRequest,
   CreateEditRaidResponse,
+  CreateGuildRequest,
+  CreateGuildResponse,
   CreateSrRequest,
   CreateSrResponse,
   DeleteSrRequest,
@@ -15,6 +17,7 @@ import type {
   GetInstancesResponse,
   GetMyRaidsResponse,
   GetRaidResponse,
+  Guild,
   InfoResponse,
   Instance,
   LockRaidResponse,
@@ -89,15 +92,23 @@ await sql`
 `
 
 await sql`
-  create table if not exists "guilds" ( guild jsonb );
-`
-
-await sql`
   create index if not exists idxraids ON raids using gin ( raid );
 `
 
 await sql`
   create unique index if not exists idx_raidId ON raids ((raid->>'id'));
+`
+
+await sql`
+  create table if not exists "guilds" ( guild jsonb );
+`
+
+await sql`
+  create index if not exists idxguilds ON guilds using gin ( guild );
+`
+
+await sql`
+  create unique index if not exists idx_guildshortname ON guilds ((guild->>'shortname'));
 `
 
 await sql`
@@ -274,6 +285,29 @@ app.post("/api/sr/create", async (c) => {
     } as never}`
     return { user, data: raid }
   })
+  return c.json(response)
+})
+
+app.post("/api/guild/create", async (c) => {
+  const user = await getOrCreateUser(c)
+  const {
+    name,
+    shortname,
+  } = await c.req
+    .json() as CreateGuildRequest
+
+  const guild: Guild = {
+    name,
+    shortname,
+    owner: user,
+    admins: [user],
+  }
+
+  await sql`insert into guilds ${sql({ guild: guild } as never)}`
+
+  const response: CreateGuildResponse = {
+    user,
+  }
   return c.json(response)
 })
 
