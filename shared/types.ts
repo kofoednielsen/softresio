@@ -94,6 +94,11 @@ export interface CreateEditRaidRequest {
   allowDuplicateSr: boolean
 }
 
+export interface CreateGuildRequest {
+  shortname: string
+  name: string
+}
+
 export type GetInstancesResponse = GenericResponse<Instance[]>
 
 export type CreateEditRaidResponse = GenericResponse<{ raidId: string }>
@@ -107,6 +112,8 @@ export type InfoResponse = GenericResponse<
 >
 
 export type SignOutResponse = GenericResponse<void>
+
+export type CreateGuildResponse = GenericResponse<void>
 
 export type GetMyRaidsResponse = GenericResponse<Raid[]>
 
@@ -186,4 +193,6 @@ export interface ItemPickerElementType {
 export interface Guild {
   name: string
   shortname: string // used as ID
+  owner: User
+  admins: User[]
 }
