@@ -43,7 +43,7 @@ function App() {
     fetch("/api/info").then((r) => r.json()).then(
       (j: InfoResponse) => {
         if (j.error) {
-          alert(j.error)
+          alert(j.error.message)
         } else if (j.data) {
           setDiscordLoginEnabled(j.data.discordLoginEnabled)
           setDiscordClientId(j.data.discordClientId)
