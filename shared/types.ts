@@ -200,3 +200,16 @@ export interface Guild {
   owner: User
   admins: User[]
 }
+
+export interface SrPlusRaid {
+  id: Raid["id"]
+  time: Raid["time"]
+}
+
+export interface SrPlus {
+  characterName: string
+  itemId: number
+  raids: SrPlusRaid[] // raid ID's
+}
+
+export type GetSrPlusResponse = GenericResponse<SrPlus[]>

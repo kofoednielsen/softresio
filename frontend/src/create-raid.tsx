@@ -41,7 +41,7 @@ export const CreateRaid = (
   const [instances, setInstances] = useState<Instance[]>()
   const [instance, setInstance] = useState<Instance>()
   const [guilds, setGuilds] = useState<Guild[]>([])
-  const [selectedGuild, setSelectedGuild] = useState<Guild>()
+  const [selectedGuild, setSelectedGuild] = useState<string>()
   const [hardReserves, setHardReserves] = useState<number[]>([])
 
   const [description, setDescription] = useState("")
@@ -127,6 +127,7 @@ export const CreateRaid = (
             setAllowDuplicateSr(raid.allowDuplicateSr)
             setUseHr(raid.hardReserves.length > 0)
             setSrCount(raid.srCount)
+            setSelectedGuild(raid.guild)
 
             if (edit) {
               setTime(new Date(raid.time))
@@ -148,6 +149,7 @@ export const CreateRaid = (
       allowDuplicateSr: raidBeforeEdit.allowDuplicateSr,
       srCount: raidBeforeEdit.srCount,
       time: raidBeforeEdit.time,
+      selectedGuild: raidBeforeEdit.guild,
     }
     const b = {
       instanceId: instance?.id,
@@ -157,6 +159,7 @@ export const CreateRaid = (
       allowDuplicateSr,
       srCount,
       time: time.toISOString(),
+      selectedGuild,
     }
     return !deepEqual(a, b)
   }
@@ -249,7 +252,7 @@ export const CreateRaid = (
                 label="Select Guild"
                 placeholder="No guild"
                 value={selectedGuild}
-                onChange={setSelectedGuild}
+                onChange={(v) => setSelectedGuild(v || undefined)}
                 data={guilds.map((g) => ({
                   label: g.name,
                   value: g.shortname,

@@ -18,6 +18,7 @@ import type {
   GetMyGuildsResponse,
   GetMyRaidsResponse,
   GetRaidResponse,
+  GetSrPlusResponse,
   Guild,
   InfoResponse,
   Instance,
@@ -661,9 +662,75 @@ app.post("/api/sr/delete", async (c) => {
   return c.json(response)
 })
 
+app.get("/api/srplus/:raidId", async (c) => {
+  const user = await getOrCreateUser(c)
+  const request = z.string().length(5).safeParse(c.req.param("raidId"))
+  if (!request.data) {
+    const response: GetSrPlusResponse = {
+      error: { message: "Missing raidId from request" },
+      user,
+    }
+    return c.json(response)
+  }
+  const raidId = request.data
+  const [result] = await sql<
+    { raid: Raid }[]
+  >`select raid from raids where raid @> ${{
+    id: raidId,
+  } as never};`
+  const raid = result?.raid
+  if (!raid) {
+    return c.json({ error: { message: "Raid not found" } }, 404)
+  }
+  if (!raid.guild) {
+    return c.json({ error: { message: "Raid has no guild" } }, 400)
+  }
+  const srPlus = []
+  for (const attendee of raid.attendees) {
+    // Find raids where they SR'd the same item
+    for (const softReserve of attendee.softReserves) {
+      console.log(attendee)
+      const raids = await sql<
+        { id: string; time: string }[]
+      >`select raid->'id' as id, raid->'time' as time from raids where raid @> ${{
+        guild: raid.guild,
+        attendees: [
+          {
+            character: {
+              name: attendee.character.name,
+            },
+            softReserves: [
+              { itemId: softReserve.itemId },
+            ],
+          },
+        ],
+      } as never} and raid->>'time' < ${raid.time};`
+      console.log(result)
+      srPlus.push({
+        characterName: attendee.character.name,
+        itemId: softReserve.itemId,
+        raids: raids,
+      })
+    }
+  }
+  const response: GetSrPlusResponse = {
+    user,
+    data: srPlus,
+  }
+  return c.json(response)
+})
+
 app.get("/api/raid/:raidId", async (c) => {
   const user = await getOrCreateUser(c)
-  const raidId = c.req.param("raidId")
+  const request = z.string().length(5).safeParse(c.req.param("raidId"))
+  if (!request.data) {
+    const response: EditAdminResponse = {
+      error: { message: "Missing raidId from request" },
+      user,
+    }
+    return c.json(response)
+  }
+  const raidId = request.data
   const [result] = await sql<
     { raid: Raid }[]
   >`select raid from raids where raid @> ${{

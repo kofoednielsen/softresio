@@ -2,6 +2,7 @@ import { useState } from "react"
 import {
   ActionIcon,
   Box,
+  Button,
   Group,
   Menu,
   Select,
@@ -17,6 +18,7 @@ import type {
   Item,
   Raid,
   SoftReserve,
+  SrPlus,
   User,
 } from "../shared/types.ts"
 import { ItemNameAndIcon } from "./item.tsx"
@@ -29,27 +31,40 @@ import {
 } from "@tabler/icons-react"
 import { classes, renderClass } from "./class.tsx"
 import { nothingItem } from "./mock-item.ts"
+import { SrPlusLog } from "./sr-plus-log.tsx"
 import { IconShieldFilled, IconTrash } from "@tabler/icons-react"
 import { modals } from "@mantine/modals"
 
 type ListElement = { attendee: Attendee; softReserve: SoftReserve }
 
 export const SrListElement = (
-  { visible, item, attendee, admins, user, owner, editAdmin, deleteSr, locked }:
-    {
-      visible: boolean
-      locked: boolean
-      item: Item
-      attendee: Attendee
-      admins: User[]
-      owner: User
-      user: User
-      editAdmin: (user: User, remove: boolean) => void
-      deleteSr: () => void
-    },
+  {
+    visible,
+    item,
+    attendee,
+    admins,
+    user,
+    owner,
+    editAdmin,
+    deleteSr,
+    locked,
+    srPlus,
+  }: {
+    srPlus?: SrPlus
+    visible: boolean
+    locked: boolean
+    item: Item
+    attendee: Attendee
+    admins: User[]
+    owner: User
+    user: User
+    editAdmin: (user: User, remove: boolean) => void
+    deleteSr: () => void
+  },
 ) => {
   const { ref, hovered } = useHover()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [logOpen, setLogOpen] = useState(false)
 
   const openConfirmDeleteSrModal = () =>
     modals.openConfirmModal({
@@ -187,8 +202,26 @@ export const SrListElement = (
               highlight={false}
             />
           </Table.Td>
-          <Table.Td>
-            {item.srPlus || 0}
+          <Table.Td ta="center">
+            <Button
+              onClick={(e) => {
+                setLogOpen(true)
+                e.stopPropagation()
+              }}
+              variant="subtle"
+              color="lightgrey"
+            >
+              {(srPlus?.raids.length || 0) * 10}
+            </Button>
+            {srPlus
+              ? (
+                <SrPlusLog
+                  open={logOpen}
+                  onClose={() => setLogOpen(false)}
+                  srPlus={srPlus}
+                />
+              )
+              : null}
           </Table.Td>
         </Table.Tr>
       </Menu.Target>
@@ -211,7 +244,8 @@ export const SrListElement = (
 }
 
 export const SrList = (
-  { raid, items, user, editAdmin, deleteSr }: {
+  { raid, items, user, editAdmin, deleteSr, srPluses }: {
+    srPluses: SrPlus[]
     raid: Raid
     items: Item[]
     user: User
@@ -361,7 +395,7 @@ export const SrList = (
               </ActionIcon>
             </Group>
           </Table.Th>
-          <Table.Th>
+          <Table.Th ta="center" pb="sm" px={0} w={10}>
             SR+
           </Table.Th>
         </Table.Tr>
@@ -379,6 +413,10 @@ export const SrList = (
             admins={raid.admins}
             owner={raid.owner}
             editAdmin={editAdmin}
+            srPlus={srPluses?.find((sr) =>
+              sr.characterName == e.attendee.character.name &&
+              sr.itemId == e.softReserve.itemId
+            )}
             deleteSr={() => deleteSr(e.attendee.user, e.softReserve.itemId)}
           />
         ))}
