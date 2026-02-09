@@ -15,6 +15,7 @@ import type {
   EditAdminResponse,
   GetCharactersResponse,
   GetInstancesResponse,
+  GetMyGuildsResponse,
   GetMyRaidsResponse,
   GetRaidResponse,
   Guild,
@@ -355,6 +356,7 @@ app.post("/api/raid/create", async (c) => {
     time: z.iso.datetime(),
     instanceId: z.number(),
     srCount: z.number().max(4).min(1),
+    guild: z.string().max(5).min(2).optional(),
   }).safeParse(await c.req.json())
 
   if (!request.data) {
@@ -377,6 +379,7 @@ app.post("/api/raid/create", async (c) => {
     description,
     hardReserves,
     allowDuplicateSr,
+    guild,
   }: CreateEditRaidRequest = request.data
 
   const raidId = editRaidId || generateRaidId()
@@ -387,6 +390,26 @@ app.post("/api/raid/create", async (c) => {
       >`select raid from raids where raid @> ${{
         id: raidId,
       } as never} for update;`
+      if (guild) {
+        const [result] = await sql<
+          { guild: Guild }[]
+        >`select guild 
+            from guilds 
+            where 
+              guild @> ${{
+          admins: [{ userId: user.userId }],
+          shortname: guild,
+        } as never};`
+        if (!result?.guild) {
+          return ({
+            error: {
+              message: "You are not an admin of a guild with that shortname",
+            },
+            user,
+          })
+        }
+      }
+
       const raid = result?.raid
       if (raid && !raid.admins.some((u) => u.userId == user.userId)) {
         return ({
@@ -409,6 +432,7 @@ app.post("/api/raid/create", async (c) => {
         owner: raid?.owner || user,
         hardReserves,
         allowDuplicateSr,
+        guild,
       }
 
       if (raid?.instanceId !== updatedRaid.instanceId) {
@@ -719,6 +743,23 @@ app.get("/api/raids", async (c) => {
   const user = await getOrCreateUser(c)
   const raids = await getRecentRaids(user)
   const response: GetMyRaidsResponse = { data: raids, user }
+  return c.json(response)
+})
+
+app.get("/api/guilds", async (c) => {
+  const user = await getOrCreateUser(c)
+  const result = await sql<
+    { guild: Guild }[]
+  >`select guild 
+      from guilds 
+      where 
+        guild @> ${{
+    admins: [{ userId: user.userId }],
+  } as never};`
+  const response: GetMyGuildsResponse = {
+    data: result.map((r) => r.guild),
+    user,
+  }
   return c.json(response)
 })
 

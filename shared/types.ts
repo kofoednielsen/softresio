@@ -72,6 +72,7 @@ export interface Raid {
   hardReserves: number[]
   allowDuplicateSr: boolean
   owner: User
+  guild?: string //shortname
 }
 
 interface GenericResponse<T> {
@@ -92,6 +93,7 @@ export interface CreateEditRaidRequest {
   srCount: number
   hardReserves: number[]
   allowDuplicateSr: boolean
+  guild?: string //shortname
 }
 
 export interface CreateGuildRequest {
@@ -116,6 +118,8 @@ export type SignOutResponse = GenericResponse<void>
 export type CreateGuildResponse = GenericResponse<void>
 
 export type GetMyRaidsResponse = GenericResponse<Raid[]>
+
+export type GetMyGuildsResponse = GenericResponse<Guild[]>
 
 export type GetCharactersResponse = GenericResponse<Character[]>
 

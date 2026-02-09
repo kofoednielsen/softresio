@@ -187,6 +187,9 @@ export const SrListElement = (
               highlight={false}
             />
           </Table.Td>
+          <Table.Td>
+            {item.srPlus || 0}
+          </Table.Td>
         </Table.Tr>
       </Menu.Target>
       <Menu.Dropdown>
@@ -357,6 +360,9 @@ export const SrList = (
                 <IconX />
               </ActionIcon>
             </Group>
+          </Table.Th>
+          <Table.Th>
+            SR+
           </Table.Th>
         </Table.Tr>
       </Table.Thead>
