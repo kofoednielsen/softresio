@@ -48,9 +48,10 @@ export const SrListElement = (
     editAdmin,
     deleteSr,
     locked,
-    srPlus,
+    srPluses,
+    guildShortname,
   }: {
-    srPlus?: SrPlus
+    srPluses: SrPlus[]
     visible: boolean
     locked: boolean
     item: Item
@@ -60,6 +61,7 @@ export const SrListElement = (
     user: User
     editAdmin: (user: User, remove: boolean) => void
     deleteSr: () => void
+    guildShortname?: string
   },
 ) => {
   const { ref, hovered } = useHover()
@@ -211,14 +213,17 @@ export const SrListElement = (
               variant="subtle"
               color="lightgrey"
             >
-              {(srPlus?.raids.length || 0) * 10}
+              {(srPluses.length) * 10}
             </Button>
-            {srPlus
+            {guildShortname && srPluses.length > 0
               ? (
                 <SrPlusLog
                   open={logOpen}
                   onClose={() => setLogOpen(false)}
-                  srPlus={srPlus}
+                  characterName={attendee.character.name}
+                  guildShortname={guildShortname}
+                  itemId={item.id}
+                  srPluses={srPluses}
                 />
               )
               : null}
@@ -403,6 +408,7 @@ export const SrList = (
       <Table.Tbody>
         {elements.map((e) => (
           <SrListElement
+            guildShortname={raid.guildShortname}
             locked={raid.locked}
             key={`${e.attendee.character.name}|${e.softReserve.itemId}|${e.index}`}
             visible={filter(e)}
@@ -413,7 +419,7 @@ export const SrList = (
             admins={raid.admins}
             owner={raid.owner}
             editAdmin={editAdmin}
-            srPlus={srPluses?.find((sr) =>
+            srPluses={srPluses?.filter((sr) =>
               sr.characterName == e.attendee.character.name &&
               sr.itemId == e.softReserve.itemId
             )}

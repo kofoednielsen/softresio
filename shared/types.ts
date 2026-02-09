@@ -72,7 +72,7 @@ export interface Raid {
   hardReserves: number[]
   allowDuplicateSr: boolean
   owner: User
-  guild?: string //shortname
+  guildShortname?: string //shortname
 }
 
 interface GenericResponse<T> {
@@ -93,7 +93,7 @@ export interface CreateEditRaidRequest {
   srCount: number
   hardReserves: number[]
   allowDuplicateSr: boolean
-  guild?: string //shortname
+  guildShortname?: string //shortname
 }
 
 export interface CreateGuildRequest {
@@ -199,17 +199,34 @@ export interface Guild {
   shortname: string // used as ID
   owner: User
   admins: User[]
+  srPlus: SrPlusManual[]
+}
+
+export interface SrPlusManualChangeRequest {
+  guildShortname: string
+  characterName: string
+  itemId: number
+  value: number
+}
+
+export interface SrPlusManual {
+  type: "manual"
+  time: string // rfc3339
+  characterName: string
+  itemId: number
+  value: number
 }
 
 export interface SrPlusRaid {
-  id: Raid["id"]
+  type: "raid"
+  characterName: string
+  itemId: number
+  raidId: Raid["id"]
   time: Raid["time"]
 }
 
-export interface SrPlus {
-  characterName: string
-  itemId: number
-  raids: SrPlusRaid[] // raid ID's
-}
+export type SrPlus = SrPlusRaid | SrPlusManual
 
 export type GetSrPlusResponse = GenericResponse<SrPlus[]>
+
+export type SrPlusManualChangeResponse = GenericResponse<Guild>

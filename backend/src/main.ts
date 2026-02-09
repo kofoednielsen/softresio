@@ -26,6 +26,9 @@ import type {
   Raid,
   SignOutResponse,
   SoftReserve,
+  SrPlus,
+  SrPlusManualChangeRequest,
+  SrPlusManualChangeResponse,
   User,
 } from "../shared/types.ts"
 import { diff, removeOne } from "../shared/utils.ts"
@@ -158,9 +161,9 @@ await sql.listen("raid_updated", async (raidId) => {
 const app = new Hono()
 
 const characterSchema = z.object({
-  name: z.string().max(12),
-  class: z.string().max(20),
-  spec: z.string().max(20),
+  name: z.string().max(12).min(1),
+  class: z.string().max(20).min(1),
+  spec: z.string().max(20).min(1),
 })
 
 const userSchema = z.object({
@@ -335,6 +338,7 @@ app.post("/api/guild/create", async (c) => {
     shortname,
     owner: user,
     admins: [user],
+    srPlus: [],
   }
 
   await sql`insert into guilds ${sql({ guild: guild } as never)}`
@@ -357,7 +361,7 @@ app.post("/api/raid/create", async (c) => {
     time: z.iso.datetime(),
     instanceId: z.number(),
     srCount: z.number().max(4).min(1),
-    guild: z.string().max(5).min(2).optional(),
+    guildShortname: z.string().max(5).min(2).optional(),
   }).safeParse(await c.req.json())
 
   if (!request.data) {
@@ -380,7 +384,7 @@ app.post("/api/raid/create", async (c) => {
     description,
     hardReserves,
     allowDuplicateSr,
-    guild,
+    guildShortname,
   }: CreateEditRaidRequest = request.data
 
   const raidId = editRaidId || generateRaidId()
@@ -391,7 +395,7 @@ app.post("/api/raid/create", async (c) => {
       >`select raid from raids where raid @> ${{
         id: raidId,
       } as never} for update;`
-      if (guild) {
+      if (guildShortname) {
         const [result] = await sql<
           { guild: Guild }[]
         >`select guild 
@@ -399,7 +403,7 @@ app.post("/api/raid/create", async (c) => {
             where 
               guild @> ${{
           admins: [{ userId: user.userId }],
-          shortname: guild,
+          shortname: guildShortname,
         } as never};`
         if (!result?.guild) {
           return ({
@@ -433,7 +437,7 @@ app.post("/api/raid/create", async (c) => {
         owner: raid?.owner || user,
         hardReserves,
         allowDuplicateSr,
-        guild,
+        guildShortname,
       }
 
       if (raid?.instanceId !== updatedRaid.instanceId) {
@@ -662,6 +666,69 @@ app.post("/api/sr/delete", async (c) => {
   return c.json(response)
 })
 
+app.post("/api/srplus", async (c) => {
+  const user = await getOrCreateUser(c)
+  const request = z.object({
+    guildShortname: z.string().min(2).max(5),
+    characterName: z.string().max(12).min(1),
+    itemId: z.number(),
+    value: z.number().min(0).max(1000),
+  }).safeParse(await c.req.json())
+
+  if (!request.data) {
+    const response: SrPlusManualChangeResponse = {
+      error: {
+        message: "Invalid request",
+        issues: request.error.issues,
+      },
+      user,
+    }
+    return c.json(response, 400)
+  }
+
+  const {
+    guildShortname,
+    characterName,
+    itemId,
+    value,
+  }: SrPlusManualChangeRequest = request.data
+
+  const response: SrPlusManualChangeResponse = await beginWithTimeout(
+    async (tx) => {
+      const [result] = await sql<
+        { guild: Guild }[]
+      >`select guild 
+          from guilds 
+          where 
+            guild @> ${{
+        admins: [{ userId: user.userId }],
+        shortname: guildShortname,
+      } as never} for update;`
+      if (!result?.guild) {
+        return ({
+          error: {
+            message: "You are not an admin of a guild with that shortname",
+          },
+          user,
+        })
+      }
+      const guild = result.guild
+      guild.srPlus.push({
+        type: "manual",
+        time: (new Date()).toISOString(),
+        characterName,
+        itemId,
+        value,
+      })
+      await tx`insert into guilds ${
+        sql({ guild } as never)
+      } on conflict ((guild->>'shortname')) do update set guild = EXCLUDED.guild;`
+      return { user, data: guild }
+    },
+  )
+  return c.json(response)
+})
+
 app.get("/api/srplus/:raidId", async (c) => {
   const user = await getOrCreateUser(c)
   const request = z.string().length(5).safeParse(c.req.param("raidId"))
@@ -673,27 +740,42 @@ app.get("/api/srplus/:raidId", async (c) => {
     return c.json(response)
   }
   const raidId = request.data
-  const [result] = await sql<
+  const [raidResult] = await sql<
     { raid: Raid }[]
   >`select raid from raids where raid @> ${{
     id: raidId,
   } as never};`
-  const raid = result?.raid
+  const raid = raidResult?.raid
   if (!raid) {
     return c.json({ error: { message: "Raid not found" } }, 404)
   }
-  if (!raid.guild) {
+  if (!raid.guildShortname) {
     return c.json({ error: { message: "Raid has no guild" } }, 400)
   }
-  const srPlus = []
+  const [guildResult] = await sql<
+    { guild: Guild }[]
+  >`select guild 
+      from guilds 
+      where 
+        guild @> ${{
+    shortname: raid.guildShortname,
+  } as never};`
+  if (!guildResult?.guild) {
+    return c.json({
+      error: {
+        message: "Guild not found",
+      },
+      user,
+    })
+  }
+  const guild = guildResult.guild
+  const srPlus: SrPlus[] = []
   for (const attendee of raid.attendees) {
-    // Find raids where they SR'd the same item
     for (const softReserve of attendee.softReserves) {
-      console.log(attendee)
       const raids = await sql<
         { id: string; time: string }[]
       >`select raid->'id' as id, raid->'time' as time from raids where raid @> ${{
-        guild: raid.guild,
+        guildShortname: raid.guildShortname,
         attendees: [
           {
             character: {
@@ -705,12 +787,23 @@ app.get("/api/srplus/:raidId", async (c) => {
           },
         ],
       } as never} and raid->>'time' < ${raid.time};`
-      console.log(result)
-      srPlus.push({
-        characterName: attendee.character.name,
-        itemId: softReserve.itemId,
-        raids: raids,
-      })
+      for (const raid of raids) {
+        srPlus.push({
+          type: "raid",
+          raidId: raid.id,
+          time: raid.time,
+          characterName: attendee.character.name,
+          itemId: softReserve.itemId,
+        })
+      }
+      for (const srPlusChange of guild.srPlus) {
+        if (
+          srPlusChange.itemId == softReserve.itemId &&
+          srPlusChange.characterName == attendee.character.name
+        ) {
+          srPlus.push(srPlusChange)
+        }
+      }
     }
   }
   const response: GetSrPlusResponse = {

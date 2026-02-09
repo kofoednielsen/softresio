@@ -1,24 +1,82 @@
-import type { SrPlus } from "../shared/types.ts"
-import { Anchor, Modal, Table, Text, Tooltip } from "@mantine/core"
+import { useState } from "react"
+import type {
+  SrPlus,
+  SrPlusManualChangeRequest,
+  SrPlusManualChangeResponse,
+} from "../shared/types.ts"
+import {
+  Anchor,
+  Button,
+  Modal,
+  NumberInput,
+  Stack,
+  Table,
+  Text,
+  Tooltip,
+} from "@mantine/core"
 import { formatDistanceToNow } from "date-fns"
 import { formatTime, raidIdToUrl } from "../shared/utils.ts"
 
 export const SrPlusLog = (
-  { srPlus, open, onClose }: {
-    srPlus: SrPlus
+  { srPluses, open, onClose, characterName, itemId, guildShortname }: {
+    srPluses: SrPlus[]
+    characterName: string
+    itemId: number
+    guildShortname: string
     open: boolean
     onClose: () => void
   },
 ) => {
+  const [changeSrPlus, setChangeSrPlus] = useState(srPluses.length * 10)
+
+  const submit = () => {
+    const request: SrPlusManualChangeRequest = {
+      guildShortname,
+      characterName,
+      itemId,
+      value: changeSrPlus,
+    }
+
+    fetch(`/api/srplus`, { method: "POST", body: JSON.stringify(request) })
+      .then(
+        (r) => r.json(),
+      ).then(
+        (j: SrPlusManualChangeResponse) => {
+          if (j.error) {
+            alert(j.error.message)
+          } else if (j.data) {
+            alert("SR+ set")
+          }
+        },
+      )
+  }
+
   return (
     <Modal
-      title={`${srPlus.characterName}'s SR+ History`}
+      title={`${srPluses[0]?.characterName}'s SR+ History`}
       size="auto"
       opened={open}
       onClose={onClose}
       withCloseButton
       padding="sm"
     >
+      <Stack mb="md">
+        <Stack>
+          <NumberInput
+            ta="right"
+            value={changeSrPlus}
+            onChange={(e) => setChangeSrPlus(Number(e))}
+            step={10}
+            max={1000}
+          />
+          <Button
+            onClick={submit}
+            disabled={changeSrPlus === (srPluses.length * 10)}
+          >
+            Set SR+
+          </Button>
+        </Stack>
+      </Stack>
       <Table>
         <Table.Thead>
           <Table.Tr>
@@ -28,25 +86,29 @@ export const SrPlusLog = (
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {srPlus.raids.sort((a, b) => b.time.localeCompare(a.time)).map((
-            raid,
+          {srPluses.sort((a, b) => b.time.localeCompare(a.time)).map((
+            srPlus,
           ) => (
             <Table.Tr>
               <Table.Td>
-                <Tooltip label={formatTime(raid.time)}>
+                <Tooltip label={formatTime(srPlus.time)}>
                   <Text size="sm">
-                    {formatDistanceToNow(raid.time, { addSuffix: true })}
+                    {formatDistanceToNow(srPlus.time, { addSuffix: true })}
                   </Text>
                 </Tooltip>
               </Table.Td>
               <Table.Td>
-                <Anchor size="sm" href={raidIdToUrl(raid.id)}>
-                  {raidIdToUrl(raid.id)}
-                </Anchor>
+                {srPlus.type == "raid"
+                  ? (
+                    <Anchor size="sm" href={raidIdToUrl(srPlus.raidId)}>
+                      {raidIdToUrl(srPlus.raidId)}
+                    </Anchor>
+                  )
+                  : "Manual"}
               </Table.Td>
               <Table.Td>
                 <Text size="sm">
-                  +10
+                  {srPlus.type == "raid" ? "+10" : "=" + srPlus.value}
                 </Text>
               </Table.Td>
             </Table.Tr>
