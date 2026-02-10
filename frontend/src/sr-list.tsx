@@ -204,30 +204,34 @@ export const SrListElement = (
               highlight={false}
             />
           </Table.Td>
-          <Table.Td ta="center">
-            <Button
-              onClick={(e) => {
-                setLogOpen(true)
-                e.stopPropagation()
-              }}
-              variant="subtle"
-              color="lightgrey"
-            >
-              {(srPluses.length) * 10}
-            </Button>
-            {guildShortname && srPluses.length > 0
-              ? (
-                <SrPlusLog
-                  open={logOpen}
-                  onClose={() => setLogOpen(false)}
-                  characterName={attendee.character.name}
-                  guildShortname={guildShortname}
-                  itemId={item.id}
-                  srPluses={srPluses}
-                />
-              )
-              : null}
-          </Table.Td>
+          {guildShortname
+            ? (
+              <Table.Td ta="center">
+                <Button
+                  onClick={(e) => {
+                    setLogOpen(true)
+                    e.stopPropagation()
+                  }}
+                  variant="subtle"
+                  color="lightgrey"
+                >
+                  {(srPluses.length) * 10}
+                </Button>
+                {guildShortname && srPluses.length > 0
+                  ? (
+                    <SrPlusLog
+                      open={logOpen}
+                      onClose={() => setLogOpen(false)}
+                      characterName={attendee.character.name}
+                      guildShortname={guildShortname}
+                      itemId={item.id}
+                      srPluses={srPluses}
+                    />
+                  )
+                  : null}
+              </Table.Td>
+            )
+            : null}
         </Table.Tr>
       </Menu.Target>
       <Menu.Dropdown>
@@ -400,9 +404,13 @@ export const SrList = (
               </ActionIcon>
             </Group>
           </Table.Th>
-          <Table.Th ta="center" pb="sm" px={0} w={10}>
-            SR+
-          </Table.Th>
+          {raid.guildShortname
+            ? (
+              <Table.Th ta="center" pb="sm" px={0} w={10}>
+                SR+
+              </Table.Th>
+            )
+            : null}
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
