@@ -327,11 +327,26 @@ app.post("/api/sr/create", async (c) => {
 
 app.post("/api/guild/create", async (c) => {
   const user = await getOrCreateUser(c)
+
+  const request = z.object({
+    name: z.string().max(40).min(1),
+    shortname: z.string().min(2).max(5),
+  }).safeParse(await c.req.json())
+
+  if (!request.data) {
+    const response: CreateGuildResponse = {
+      error: {
+        message: "Invalid request",
+        issues: request.error.issues,
+      },
+      user,
+    }
+    return c.json(response, 400)
+  }
   const {
     name,
     shortname,
-  } = await c.req
-    .json() as CreateGuildRequest
+  }: CreateGuildRequest = request.data
 
   const guild: Guild = {
     name,

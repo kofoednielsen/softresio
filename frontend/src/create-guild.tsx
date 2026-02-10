@@ -33,12 +33,14 @@ export const CreateGuild = () => {
       <Stack>
         <TextInput
           label="Guild name"
+          maxLength={40}
           placeholder="Guild name"
           value={name}
           onChange={(e) => setName(e.currentTarget.value)}
         />
         <TextInput
           label="Shortname"
+          maxLength={5}
           placeholder="Shortname"
           value={shortname}
           onChange={(e) => setShortname(e.currentTarget.value.toUpperCase())}
