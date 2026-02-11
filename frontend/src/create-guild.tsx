@@ -7,12 +7,10 @@ import type {
 
 export const CreateGuild = () => {
   const [name, setName] = useState("")
-  const [shortname, setShortname] = useState("")
 
   const createGuild = () => {
     const request: CreateGuildRequest = {
       name,
-      shortname,
     }
     fetch("/api/guild/create", {
       method: "POST",
@@ -38,14 +36,7 @@ export const CreateGuild = () => {
           value={name}
           onChange={(e) => setName(e.currentTarget.value)}
         />
-        <TextInput
-          label="Shortname"
-          maxLength={5}
-          placeholder="Shortname"
-          value={shortname}
-          onChange={(e) => setShortname(e.currentTarget.value.toUpperCase())}
-        />
-        <Button mt="sm" disabled={!shortname || !name} onClick={createGuild}>
+        <Button mt="sm" disabled={!name} onClick={createGuild}>
           Create Guild
         </Button>
       </Stack>

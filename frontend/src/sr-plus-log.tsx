@@ -18,11 +18,11 @@ import { formatDistanceToNow } from "date-fns"
 import { formatTime, raidIdToUrl } from "../shared/utils.ts"
 
 export const SrPlusLog = (
-  { srPluses, open, onClose, characterName, itemId, guildShortname }: {
+  { srPluses, open, onClose, characterName, itemId, guildId }: {
     srPluses: SrPlus[]
     characterName: string
     itemId: number
-    guildShortname: string
+    guildId: string
     open: boolean
     onClose: () => void
   },
@@ -31,7 +31,7 @@ export const SrPlusLog = (
 
   const submit = () => {
     const request: SrPlusManualChangeRequest = {
-      guildShortname,
+      guildId,
       characterName,
       itemId,
       value: changeSrPlus,

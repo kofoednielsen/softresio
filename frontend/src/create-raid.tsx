@@ -41,7 +41,7 @@ export const CreateRaid = (
   const [instances, setInstances] = useState<Instance[]>()
   const [instance, setInstance] = useState<Instance>()
   const [guilds, setGuilds] = useState<Guild[]>([])
-  const [selectedGuildShortname, setSelectedGuildShortname] = useState<string>()
+  const [selectedGuildId, setSelectedGuildId] = useState<string>()
   const [hardReserves, setHardReserves] = useState<number[]>([])
 
   const [description, setDescription] = useState("")
@@ -71,7 +71,7 @@ export const CreateRaid = (
       srCount,
       hardReserves,
       allowDuplicateSr,
-      guildShortname: selectedGuildShortname,
+      guildId: selectedGuildId,
     }
     fetch("/api/raid/create", { method: "POST", body: JSON.stringify(request) })
       .then((r) => r.json())
@@ -127,7 +127,7 @@ export const CreateRaid = (
             setAllowDuplicateSr(raid.allowDuplicateSr)
             setUseHr(raid.hardReserves.length > 0)
             setSrCount(raid.srCount)
-            setSelectedGuildShortname(raid.guildShortname)
+            setSelectedGuildId(raid.guildId)
 
             if (edit) {
               setTime(new Date(raid.time))
@@ -149,7 +149,7 @@ export const CreateRaid = (
       allowDuplicateSr: raidBeforeEdit.allowDuplicateSr,
       srCount: raidBeforeEdit.srCount,
       time: raidBeforeEdit.time,
-      selectedGuildShortname: raidBeforeEdit.guildShortname,
+      selectedGuildShortname: raidBeforeEdit.guildId,
     }
     const b = {
       instanceId: instance?.id,
@@ -251,11 +251,11 @@ export const CreateRaid = (
               <Select
                 label="Select Guild"
                 placeholder="No guild"
-                value={selectedGuildShortname}
-                onChange={(v) => setSelectedGuildShortname(v || undefined)}
+                value={selectedGuildId}
+                onChange={(v) => setSelectedGuildId(v || undefined)}
                 data={guilds.map((g) => ({
                   label: g.name,
-                  value: g.shortname,
+                  value: g.id,
                 }))}
               />
             )

@@ -116,7 +116,7 @@ await sql`
 `
 
 await sql`
-  create unique index if not exists idx_guildshortname ON guilds ((guild->>'shortname'));
+  create unique index if not exists idx_guildid ON guilds ((guild->>'id'));
 `
 
 await sql`
@@ -160,6 +160,10 @@ await sql.listen("raid_updated", async (raidId) => {
 
 const app = new Hono()
 
+const raidIdSchema = z.string().length(5)
+
+const uuidSchema = z.string().length(36)
+
 const characterSchema = z.object({
   name: z.string().max(12).min(1),
   class: z.string().max(20).min(1),
@@ -167,7 +171,7 @@ const characterSchema = z.object({
 })
 
 const userSchema = z.object({
-  userId: z.string().max(36),
+  userId: uuidSchema,
   issuer: z.string().max(20),
 })
 
@@ -216,7 +220,7 @@ app.get("/api/instances", async (c) => {
 app.post("/api/sr/create", async (c) => {
   const user = await getOrCreateUser(c)
   const request = z.object({
-    raidId: z.string().length(5),
+    raidId: raidIdSchema,
     character: characterSchema,
     selectedItemIds: z.array(z.number()),
   }).safeParse(await c.req.json())
@@ -330,7 +334,6 @@ app.post("/api/guild/create", async (c) => {
 
   const request = z.object({
     name: z.string().max(40).min(1),
-    shortname: z.string().min(2).max(5),
   }).safeParse(await c.req.json())
 
   if (!request.data) {
@@ -345,12 +348,11 @@ app.post("/api/guild/create", async (c) => {
   }
   const {
     name,
-    shortname,
   }: CreateGuildRequest = request.data
 
   const guild: Guild = {
     name,
-    shortname,
+    id: randomUUID(),
     owner: user,
     admins: [user],
     srPlus: [],
@@ -368,7 +370,7 @@ app.post("/api/raid/create", async (c) => {
   const user = await getOrCreateUser(c)
 
   const request = z.object({
-    raidId: z.string().length(5).optional(),
+    raidId: raidIdSchema.optional(),
     hardReserves: z.array(z.number()),
     allowDuplicateSr: z.boolean(),
     useSrPlus: z.boolean(),
@@ -376,7 +378,7 @@ app.post("/api/raid/create", async (c) => {
     time: z.iso.datetime(),
     instanceId: z.number(),
     srCount: z.number().max(4).min(1),
-    guildShortname: z.string().max(5).min(2).optional(),
+    guildId: uuidSchema.optional(),
   }).safeParse(await c.req.json())
 
   if (!request.data) {
@@ -399,7 +401,7 @@ app.post("/api/raid/create", async (c) => {
     description,
     hardReserves,
     allowDuplicateSr,
-    guildShortname,
+    guildId,
   }: CreateEditRaidRequest = request.data
 
   const raidId = editRaidId || generateRaidId()
@@ -410,7 +412,7 @@ app.post("/api/raid/create", async (c) => {
       >`select raid from raids where raid @> ${{
         id: raidId,
       } as never} for update;`
-      if (guildShortname) {
+      if (guildId) {
         const [result] = await sql<
           { guild: Guild }[]
         >`select guild 
@@ -418,12 +420,12 @@ app.post("/api/raid/create", async (c) => {
             where 
               guild @> ${{
           admins: [{ userId: user.userId }],
-          shortname: guildShortname,
+          id: guildId,
         } as never};`
         if (!result?.guild) {
           return ({
             error: {
-              message: "You are not an admin of a guild with that shortname",
+              message: "You are not an admin of a guild with that id",
             },
             user,
           })
@@ -452,7 +454,7 @@ app.post("/api/raid/create", async (c) => {
         owner: raid?.owner || user,
         hardReserves,
         allowDuplicateSr,
-        guildShortname,
+        guildId,
       }
 
       if (raid?.instanceId !== updatedRaid.instanceId) {
@@ -485,7 +487,7 @@ app.post("/api/raid/create", async (c) => {
 app.post("/api/admin", async (c) => {
   const user = await getOrCreateUser(c)
   const request = z.object({
-    raidId: z.string().length(5),
+    raidId: raidIdSchema,
     add: userSchema.optional(),
     remove: userSchema.optional(),
   }).safeParse(await c.req.json())
@@ -562,7 +564,7 @@ app.post("/api/admin", async (c) => {
 app.post("/api/raid/:raidId/lock", async (c) => {
   const user = await getOrCreateUser(c)
 
-  const request = z.string().length(5).safeParse(c.req.param("raidId"))
+  const request = raidIdSchema.safeParse(c.req.param("raidId"))
   if (!request.data) {
     const response: EditAdminResponse = {
       error: { message: "Missing raidId from request" },
@@ -684,7 +686,7 @@ app.post("/api/sr/delete", async (c) => {
 app.post("/api/srplus", async (c) => {
   const user = await getOrCreateUser(c)
   const request = z.object({
-    guildShortname: z.string().min(2).max(5),
+    guildId: uuidSchema,
     characterName: z.string().max(12).min(1),
     itemId: z.number(),
     value: z.number().min(0).max(1000),
@@ -702,7 +704,7 @@ app.post("/api/srplus", async (c) => {
   }
 
   const {
-    guildShortname,
+    guildId,
     characterName,
     itemId,
     value,
@@ -717,12 +719,12 @@ app.post("/api/srplus", async (c) => {
           where 
             guild @> ${{
         admins: [{ userId: user.userId }],
-        shortname: guildShortname,
+        id: guildId,
       } as never} for update;`
       if (!result?.guild) {
         return ({
           error: {
-            message: "You are not an admin of a guild with that shortname",
+            message: "You are not an admin of a guild with that id",
           },
           user,
         })
@@ -737,7 +739,7 @@ app.post("/api/srplus", async (c) => {
       })
       await tx`insert into guilds ${
         sql({ guild } as never)
-      } on conflict ((guild->>'shortname')) do update set guild = EXCLUDED.guild;`
+      } on conflict ((guild->>'id')) do update set guild = EXCLUDED.guild;`
       return { user, data: guild }
     },
   )
@@ -764,7 +766,7 @@ app.get("/api/srplus/:raidId", async (c) => {
   if (!raid) {
     return c.json({ error: { message: "Raid not found" } }, 404)
   }
-  if (!raid.guildShortname) {
+  if (!raid.guildId) {
     return c.json({ error: { message: "Raid has no guild" } }, 400)
   }
   const [guildResult] = await sql<
@@ -773,7 +775,7 @@ app.get("/api/srplus/:raidId", async (c) => {
       from guilds 
       where 
         guild @> ${{
-    shortname: raid.guildShortname,
+    id: raid.guildId,
   } as never};`
   if (!guildResult?.guild) {
     return c.json({
@@ -790,7 +792,7 @@ app.get("/api/srplus/:raidId", async (c) => {
       const raids = await sql<
         { id: string; time: string }[]
       >`select raid->'id' as id, raid->'time' as time from raids where raid @> ${{
-        guildShortname: raid.guildShortname,
+        guildId: raid.guildId,
         attendees: [
           {
             character: {
@@ -830,7 +832,7 @@ app.get("/api/srplus/:raidId", async (c) => {
 
 app.get("/api/raid/:raidId", async (c) => {
   const user = await getOrCreateUser(c)
-  const request = z.string().length(5).safeParse(c.req.param("raidId"))
+  const request = raidIdSchema.safeParse(c.req.param("raidId"))
   if (!request.data) {
     const response: EditAdminResponse = {
       error: { message: "Missing raidId from request" },

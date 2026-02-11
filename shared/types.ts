@@ -72,7 +72,7 @@ export interface Raid {
   hardReserves: number[]
   allowDuplicateSr: boolean
   owner: User
-  guildShortname?: string //shortname
+  guildId?: string // uuidv4
 }
 
 interface GenericResponse<T> {
@@ -93,11 +93,10 @@ export interface CreateEditRaidRequest {
   srCount: number
   hardReserves: number[]
   allowDuplicateSr: boolean
-  guildShortname?: string //shortname
+  guildId?: string //uuidv4
 }
 
 export interface CreateGuildRequest {
-  shortname: string
   name: string
 }
 
@@ -195,15 +194,15 @@ export interface ItemPickerElementType {
 }
 
 export interface Guild {
+  id: string // uuidv4
   name: string
-  shortname: string // used as ID
   owner: User
   admins: User[]
   srPlus: SrPlusManual[]
 }
 
 export interface SrPlusManualChangeRequest {
-  guildShortname: string
+  guildId: string //uuidv4
   characterName: string
   itemId: number
   value: number

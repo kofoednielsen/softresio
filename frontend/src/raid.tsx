@@ -178,7 +178,7 @@ export const RaidElement = (
   useEffect(loadRaid, [])
 
   useEffect(() => {
-    if (raid?.guildShortname && !srPluses) {
+    if (raid?.guildId && !srPluses) {
       fetch(`/api/srplus/${raid.id}`)
         .then((r) => r.json())
         .then((j: GetSrPlusResponse) => {
