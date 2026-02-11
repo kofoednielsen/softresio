@@ -94,6 +94,12 @@ export interface CreateEditRaidRequest {
   allowDuplicateSr: boolean
 }
 
+export interface Stats {
+  raidCount: number
+}
+
+export type GetStatsResponse = Stats
+
 export type GetInstancesResponse = GenericResponse<Instance[]>
 
 export type CreateEditRaidResponse = GenericResponse<{ raidId: string }>

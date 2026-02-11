@@ -6,6 +6,7 @@ import { CreateRaid } from "./create-raid.tsx"
 import { RaidElement } from "./raid.tsx"
 import { MyRaids } from "./my-raids.tsx"
 import { LootBrowser } from "./loot-browser.tsx"
+import { StatsDashboard } from "./stats.tsx"
 import "@mantine/core/styles.css"
 import "@mantine/dates/styles.css"
 import { ModalsProvider } from "@mantine/modals"
@@ -97,6 +98,7 @@ function App() {
                           element={<MyRaids user={user} />}
                         />
                         <Route path="/loot" element={<LootBrowser />} />
+                        <Route path="/stats" element={<StatsDashboard />} />
                         <Route
                           path="/loot/items"
                           element={<LootBrowser itemPickerOpen />}

@@ -16,6 +16,7 @@ import type {
   GetInstancesResponse,
   GetMyRaidsResponse,
   GetRaidResponse,
+  GetStatsResponse,
   InfoResponse,
   Instance,
   LockRaidResponse,
@@ -749,6 +750,25 @@ app.get("/api/discord", async (c) => {
     }
   }
   return c.redirect(c.req.query("state") || "/")
+})
+
+// CRON functions
+
+let stats
+
+async function refreshStatistics() {
+  console.log("Refreshing statistics")
+}
+
+Deno.cron("refresh statistics", "*/5 * * * *", refreshStatistics)
+
+
+app.get("/api/stats", async (c) => {
+  const [{ count: raidCount }] = await sql`select count(*) from raids;`
+  const response: GetStatsResponse = {
+    raidCount: raidCount,
+  }
+  return c.json(response)
 })
 
 // Serve the frontend

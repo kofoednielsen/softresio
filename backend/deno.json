@@ -5,9 +5,9 @@
     "zod": "npm:zod@^4.3.6"
   },
   "tasks": {
-    "run": "deno run --allow-read --allow-net --allow-sys --allow-env src/main.ts"
-    "start": "deno serve --allow-read --allow-net --allow-sys --allow-env src/main.ts",
-    "start-dev": "deno serve --allow-read --allow-net --allow-sys --allow-env --watch src/main.ts"
+    "run": "deno run --unstable-cron --allow-read --allow-net --allow-sys --allow-env src/main.ts"
+    "start": "deno serve --unstable-cron --allow-read --allow-net --allow-sys --allow-env src/main.ts",
+    "start-dev": "deno serve --unstable-cron --allow-read --allow-net --allow-sys --allow-env --watch src/main.ts"
   },
   "fmt": {
     "semiColons": false
