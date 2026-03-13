@@ -82,7 +82,8 @@ app.post("/api/sr/create", async (c) => {
         return [{
           user,
           error: {
-            message: "High Prio items cost all SR slots, you can only reserve one",
+            message:
+              "High Prio items cost all SR slots, you can only reserve one",
           },
         }, 400]
       }
