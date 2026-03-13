@@ -197,8 +197,10 @@ export const CreateRaid = (
               } else {
                 setHardReserves([])
               }
-              if ((newInstance?.id == raidBeforeEdit?.instanceId) && useHighPrio) {
-                setHighPrioItems((raidBeforeEdit?.highPrioItems || []))
+              if (
+                (newInstance?.id == raidBeforeEdit?.instanceId) && useHighPrio
+              ) {
+                setHighPrioItems(raidBeforeEdit?.highPrioItems || [])
               } else {
                 setHighPrioItems([])
               }

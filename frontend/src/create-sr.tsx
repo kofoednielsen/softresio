@@ -236,15 +236,16 @@ export const CreateSr = (
           ? (
             <Text size="sm" c="var(--mantine-color-error)">
               When you SR a Prio item, you can only SR that one item. If you do
-              not SR any Prio items, you can SR up to {raid.srCount} non‑Prio
-              items.
+              not SR any Prio items, you can SR up to {raid.srCount}{" "}
+              non‑Prio items.
             </Text>
           )
           : null}
         <Button
           disabled={raid.locked || !selectedClass || !selectedSpec ||
             !characterName ||
-            (selectedItemIds && (selectedItemIds.length > effectiveItemLimit)) ||
+            (selectedItemIds &&
+              (selectedItemIds.length > effectiveItemLimit)) ||
             !srChanged()}
           onClick={(selectedItemIds.length < effectiveItemLimit)
             ? openConfirmSrsModal
