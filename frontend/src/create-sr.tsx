@@ -53,6 +53,14 @@ export const CreateSr = (
     }
   }
 
+  const highPrioItems = raid.highPrioItems || []
+  const hasHighPrioSelected = selectedItemIds.some((id) =>
+    highPrioItems.includes(id)
+  )
+  const effectiveItemLimit = hasHighPrioSelected ? 1 : raid.srCount
+  const highPrioTooMany = hasHighPrioSelected &&
+    selectedItemIds.length > effectiveItemLimit
+
   const submitSr = () => {
     if (
       selectedClass == undefined || selectedSpec == undefined ||
@@ -217,17 +225,29 @@ export const CreateSr = (
           selectedClass={selectedClass}
           user={user}
           attendees={raid.attendees}
-          itemLimit={raid.srCount}
+          itemLimit={effectiveItemLimit}
           hardReserves={raid.hardReserves}
+          highPrioItems={highPrioItems}
+          suppressLimitMessage={hasHighPrioSelected}
           sameItemLimit={raid.allowDuplicateSr ? raid.srCount : 1}
           itemPickerOpen={itemPickerOpen}
         />
+        {highPrioTooMany
+          ? (
+            <Text size="sm" c="var(--mantine-color-error)">
+              When you SR a Prio item, you can only SR that one item. If you do
+              not SR any Prio items, you can SR up to {raid.srCount}{" "}
+              non‑Prio items.
+            </Text>
+          )
+          : null}
         <Button
           disabled={raid.locked || !selectedClass || !selectedSpec ||
             !characterName ||
-            (selectedItemIds && (selectedItemIds.length > raid.srCount)) ||
+            (selectedItemIds &&
+              (selectedItemIds.length > effectiveItemLimit)) ||
             !srChanged()}
-          onClick={(selectedItemIds.length < raid.srCount)
+          onClick={(selectedItemIds.length < effectiveItemLimit)
             ? openConfirmSrsModal
             : submitSr}
         >

@@ -71,6 +71,7 @@ export interface Raid {
   description: string
   locked: boolean
   hardReserves: number[]
+  highPrioItems: number[]
   allowDuplicateSr: boolean
   owner: User
   guildId?: string // uuidv4
@@ -93,6 +94,7 @@ export interface CreateEditRaidRequest {
   time: string //rfc 3339
   srCount: number
   hardReserves: number[]
+  highPrioItems: number[]
   allowDuplicateSr: boolean
   guildId?: string //uuidv4
 }
