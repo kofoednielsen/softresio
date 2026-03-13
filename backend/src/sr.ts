@@ -75,6 +75,18 @@ app.post("/api/sr/create", async (c) => {
         return [{ user, error: { message: "Raid is locked" } }, 400]
       }
 
+      const hasHighPrio = selectedItemIds.some((id) =>
+        (raid.highPrioItems || []).includes(id)
+      )
+      if (hasHighPrio && selectedItemIds.length > 1) {
+        return [{
+          user,
+          error: {
+            message: "High Prio items cost all SR slots, you can only reserve one",
+          },
+        }, 400]
+      }
+
       // need to delete all and add all new
       const oldNameCharacter = raid.attendees.find(
         (attendee) =>

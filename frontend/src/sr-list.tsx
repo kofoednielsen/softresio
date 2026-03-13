@@ -1,6 +1,7 @@
 import { useState } from "react"
 import {
   ActionIcon,
+  Badge,
   Box,
   Button,
   Group,
@@ -52,6 +53,7 @@ export const SrListElement = (
     locked,
     srPluses,
     guildId,
+    highPrioItems,
   }: {
     srPluses: SrPlus[]
     visible: boolean
@@ -65,6 +67,7 @@ export const SrListElement = (
     editAdmin: (user: User, remove: boolean) => void
     deleteSr: () => void
     guildId?: string
+    highPrioItems: number[]
   },
 ) => {
   const { ref, hovered } = useHover()
@@ -436,6 +439,7 @@ export const SrList = (
               sr.itemId == e.softReserve.itemId
             )}
             deleteSr={() => deleteSr(e.attendee.user, e.softReserve.itemId)}
+            highPrioItems={raid.highPrioItems || []}
           />
         ))}
       </Table.Tbody>

@@ -115,6 +115,7 @@ export const RaidElement = (
   const params = useParams()
   const [logOpen, setLogOpen] = useState(false)
   const [showHardReserves, setShowHardReserves] = useState(false)
+  const [showHighPrioItems, setShowHighPrioItems] = useState(false)
   const [raid, setRaid] = useState<Raid>()
   const [srPluses, setSrPluses] = useState<SrPlus[]>()
   const [instance, setInstance] = useState<Instance>()
@@ -288,11 +289,29 @@ export const RaidElement = (
                     } hard-reserved items`}
                   >
                     <Badge
-                      color="orange"
+                      color="red"
                       style={{ userSelect: "none", cursor: "pointer" }}
                       onClick={() => setShowHardReserves(!showHardReserves)}
                     >
                       {`${raid.hardReserves.length} HR`}
+                    </Badge>
+                  </Tooltip>
+                )
+                : null}
+              {(raid.highPrioItems || []).length > 0
+                ? (
+                  <Tooltip
+                    label={`Click to ${
+                      showHighPrioItems ? "hide" : "show"
+                    } high prio items`}
+                  >
+                    <Badge
+                      color="orange"
+                      variant="outline"
+                      style={{ userSelect: "none", cursor: "pointer" }}
+                      onClick={() => setShowHighPrioItems(!showHighPrioItems)}
+                    >
+                      {`${(raid.highPrioItems || []).length} Prio`}
                     </Badge>
                   </Tooltip>
                 )
@@ -302,6 +321,11 @@ export const RaidElement = (
               items={instance.items}
               show={showHardReserves}
               hardReserves={raid.hardReserves}
+            />
+            <HardReserves
+              items={instance.items}
+              show={showHighPrioItems}
+              highPrioItems={raid.highPrioItems || []}
             />
             {raid.description
               ? (
