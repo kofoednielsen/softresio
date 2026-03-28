@@ -181,6 +181,7 @@ export const SelectableItem = ({
   sameItemLimit = 0,
   selectMode,
   hardReserves = [],
+  highPrioItems = [],
 }: {
   onClick?: () => void
   onLongClick?: () => void
@@ -195,6 +196,7 @@ export const SelectableItem = ({
   hideChance?: boolean
   selectMode?: boolean
   hardReserves?: number[]
+  highPrioItems?: number[]
   sameItemLimit?: number
 }) => {
   const highlight = (showTooltipElement?.itemId == item.id &&
@@ -224,15 +226,18 @@ export const SelectableItem = ({
                 />
               )
               : null}
+            {hardReserves.includes(item.id)
+              ? <Badge color="red">HR</Badge>
+              : null}
+            {(highPrioItems || []).includes(item.id)
+              ? <Badge color="orange" variant="outline">Prio</Badge>
+              : null}
             {!hideChance && !hardReserves.includes(item.id)
               ? (
                 <Text w={30} size="xs" c="grey" ta="right">
                   {chance ? `${chance}%` : null}
                 </Text>
               )
-              : null}
-            {hardReserves.includes(item.id)
-              ? <Badge color="red">HR</Badge>
               : null}
             {deleteMode ? <CloseButton /> : null}
             {(selectMode && !hardReserves.includes(item.id) &&
@@ -273,6 +278,7 @@ export const ItemPickerElement = ({
   elements,
   attendees,
   hardReserves = [],
+  highPrioItems = [],
   sameItemLimit,
 }: RowComponentProps<{
   onClick: (element: NpcItem) => void
@@ -286,6 +292,7 @@ export const ItemPickerElement = ({
   elements: ItemPickerElementType[]
   attendees?: Attendee[]
   hardReserves?: number[]
+  highPrioItems?: number[]
   sameItemLimit: number
 }>) => {
   const element = elements[index]
@@ -323,6 +330,7 @@ export const ItemPickerElement = ({
             selectMode={selectMode}
             attendees={attendees}
             hardReserves={hardReserves}
+            highPrioItems={highPrioItems}
             sameItemLimit={sameItemLimit}
           />
         )

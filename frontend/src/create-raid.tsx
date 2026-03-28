@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router"
 import {
+  Box,
   Button,
   Collapse,
   Group,
@@ -43,11 +44,14 @@ export const CreateRaid = (
   const [guilds, setGuilds] = useState<Guild[]>([])
   const [selectedGuildId, setSelectedGuildId] = useState<string>()
   const [hardReserves, setHardReserves] = useState<number[]>([])
+  const [highPrioItems, setHighPrioItems] = useState<number[]>([])
 
   const [description, setDescription] = useState("")
   const [useSrPlus, setUseSrPlus] = useState(false)
   const [allowDuplicateSr, setAllowDuplicateSr] = useState(false)
   const [useHr, setUseHr] = useState(false)
+  const [useHighPrio, setUseHighPrio] = useState(false)
+  const [activePicker, setActivePicker] = useState<"hr" | "highPrio">("hr")
   const [srCount, setSrCount] = useState<number | undefined>()
   const [time, setTime] = useState<Date>(
     new Date(
@@ -70,6 +74,7 @@ export const CreateRaid = (
       time: time.toISOString(),
       srCount,
       hardReserves,
+      highPrioItems,
       allowDuplicateSr,
       guildId: selectedGuildId,
     }
@@ -122,10 +127,12 @@ export const CreateRaid = (
             const raid = j.data
             setInstance(instances.find((i) => i.id == raid.instanceId))
             setHardReserves(raid.hardReserves)
+            setHighPrioItems(raid.highPrioItems || [])
             setDescription(raid.description)
             setUseSrPlus(raid.useSrPlus)
             setAllowDuplicateSr(raid.allowDuplicateSr)
             setUseHr(raid.hardReserves.length > 0)
+            setUseHighPrio((raid.highPrioItems || []).length > 0)
             setSrCount(raid.srCount)
             setSelectedGuildId(raid.guildId)
 
@@ -144,6 +151,7 @@ export const CreateRaid = (
     const a = {
       instanceId: raidBeforeEdit.instanceId,
       hardReserves: raidBeforeEdit.hardReserves.sort(),
+      highPrioItems: (raidBeforeEdit.highPrioItems || []).sort(),
       description: raidBeforeEdit.description,
       useSrPlus: raidBeforeEdit.useSrPlus,
       allowDuplicateSr: raidBeforeEdit.allowDuplicateSr,
@@ -154,6 +162,7 @@ export const CreateRaid = (
     const b = {
       instanceId: instance?.id,
       hardReserves: hardReserves.sort(),
+      highPrioItems: highPrioItems.sort(),
       description,
       useSrPlus,
       allowDuplicateSr,
@@ -187,6 +196,13 @@ export const CreateRaid = (
                 setHardReserves(raidBeforeEdit?.hardReserves || [])
               } else {
                 setHardReserves([])
+              }
+              if (
+                (newInstance?.id == raidBeforeEdit?.instanceId) && useHighPrio
+              ) {
+                setHighPrioItems(raidBeforeEdit?.highPrioItems || [])
+              } else {
+                setHighPrioItems([])
               }
             }}
           />
@@ -246,6 +262,15 @@ export const CreateRaid = (
             }}
             label="Hard-reserve items"
           />
+          <Switch
+            checked={useHighPrio}
+            disabled={!instance}
+            onChange={(event) => {
+              setUseHighPrio(event.target.checked)
+              if (!event.target.checked) setHighPrioItems([])
+            }}
+            label="Prio items (cost all SRs)"
+          />
           {guilds.length > 0
             ? (
               <Select
@@ -263,15 +288,41 @@ export const CreateRaid = (
           <Collapse in={useHr && instance ? true : false}>
             {instance
               ? (
-                <ItemSelect
-                  withAsterisk={hardReserves.length == 0}
-                  label="Select the item's you want to hard-reserve"
-                  value={hardReserves}
-                  onChange={setHardReserves}
-                  sameItemLimit={1}
-                  instance={instance}
-                  itemPickerOpen={itemPickerOpen}
-                />
+                <Box onClickCapture={() => setActivePicker("hr")}>
+                  <ItemSelect
+                    withAsterisk={hardReserves.length == 0}
+                    label="Select the item's you want to hard-reserve"
+                    value={hardReserves}
+                    onChange={(ids) => {
+                      setHardReserves(ids)
+                      setHighPrioItems((prev) =>
+                        prev.filter((itemId) => !ids.includes(itemId))
+                      )
+                    }}
+                    sameItemLimit={1}
+                    instance={instance}
+                    itemPickerOpen={itemPickerOpen && activePicker === "hr"}
+                  />
+                </Box>
+              )
+              : null}
+          </Collapse>
+          <Collapse in={useHighPrio && instance ? true : false}>
+            {instance
+              ? (
+                <Box onClickCapture={() => setActivePicker("highPrio")}>
+                  <ItemSelect
+                    withAsterisk={highPrioItems.length == 0}
+                    label="Select items that cost all SRs"
+                    value={highPrioItems}
+                    onChange={setHighPrioItems}
+                    sameItemLimit={1}
+                    instance={instance}
+                    hardReserves={hardReserves}
+                    itemPickerOpen={itemPickerOpen &&
+                      activePicker === "highPrio"}
+                  />
+                </Box>
               )
               : null}
           </Collapse>
@@ -299,7 +350,8 @@ export const CreateRaid = (
               }
             }}
             disabled={!instance || !srCount ||
-              (useHr && hardReserves.length == 0) || !raidChanged()}
+              (useHr && hardReserves.length == 0) ||
+              (useHighPrio && highPrioItems.length == 0) || !raidChanged()}
           >
             {edit ? "Save Changes" : "Create Raid"}
           </Button>
