@@ -5,6 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true,
+    watch: {
+      usePolling: true,
+    },
+    allowedHosts: ["pxh1tn.tunnel.pyjam.as", ".tunnel.pyjam.as"],
     proxy: {
       "/api": {
         target: "http://backend:8000",
