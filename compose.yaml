@@ -4,7 +4,7 @@ services:
     build:
       target: "frontend"
     ports:
-      - "127.0.0.1:8000:5173"
+      - "0.0.0.0:8000:5173"
     volumes:
       - "./frontend/src:/app/src:ro"
       - "./frontend/css:/app/css:ro"
@@ -19,7 +19,7 @@ services:
       - "./shared:/app/shared:ro"
       - "./backend/instances:/app/instances:ro"
     ports:
-      - "127.0.0.1:9000:8000"
+      - "0.0.0.0:9000:8000"
     environment:
       DATABASE_PASSWORD: "softres"
       DATABASE_USER: "softres"

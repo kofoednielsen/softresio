@@ -33,9 +33,11 @@ export const ItemPicker = ({
   attendees,
   selectMode,
   hardReserves = [],
+  highPrioItems = [],
   sameItemLimit = 0,
   itemPickerOpen,
   instance,
+  blockedItemIds = [],
 }: {
   selectedItemIds?: number[]
   setSelectedItemIds?: (itemIds: number[]) => void
@@ -44,9 +46,11 @@ export const ItemPicker = ({
   attendees?: Attendee[]
   selectMode?: boolean
   hardReserves?: number[]
+  highPrioItems?: number[]
   sameItemLimit?: number
   itemPickerOpen: boolean
   instance: Instance
+  blockedItemIds?: number[]
 }) => {
   const [showTooltipElement, setShowTooltipElement] = useState<NpcItem>()
   const [slotFilter, setSlotFilter] = useState<string>()
@@ -91,8 +95,18 @@ export const ItemPicker = ({
     if (!setSelectedItemIds || !selectedItemIds) {
       return setShowTooltipElement(undefined)
     }
+    const isHighPrio = (highPrioItems || []).includes(element.itemId)
+    const hasHighPrioSelected = (highPrioItems || []).some((id) =>
+      selectedItemIds.includes(id)
+    )
+    if (hasHighPrioSelected && !isHighPrio) {
+      setShowTooltipElement(undefined)
+      return
+    }
+    const isBlocked = hardReserves.includes(element.itemId) ||
+      (blockedItemIds || []).includes(element.itemId)
     if (
-      (!hardReserves.includes(element.itemId)) &&
+      (!isBlocked) &&
       (!showTooltipElement || deepEqual(element, showTooltipElement))
     ) {
       const contextualItemLimit = rightSection ? 1 : sameItemLimit
@@ -102,7 +116,9 @@ export const ItemPicker = ({
       ) {
         setSelectedItemIds([...selectedItemIds, element.itemId])
       } else {
-        setSelectedItemIds(selectedItemIds.filter((i) => i !== element.itemId))
+        setSelectedItemIds(
+          selectedItemIds.filter((i) => i !== element.itemId),
+        )
       }
     }
     setShowTooltipElement(undefined)
@@ -290,6 +306,7 @@ export const ItemPicker = ({
             user,
             selectMode,
             hardReserves,
+            highPrioItems,
             sameItemLimit,
           }}
         />

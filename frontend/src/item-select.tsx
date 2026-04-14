@@ -18,6 +18,9 @@ export const ItemSelect = (
     attendees,
     itemLimit,
     hardReserves = [],
+    highPrioItems = [],
+    blockedItemIds = [],
+    suppressLimitMessage = false,
     sameItemLimit,
     itemPickerOpen,
     withAsterisk,
@@ -31,6 +34,9 @@ export const ItemSelect = (
     attendees?: Attendee[]
     itemLimit?: number
     hardReserves?: number[]
+    highPrioItems?: number[]
+    blockedItemIds?: number[]
+    suppressLimitMessage?: boolean
     sameItemLimit: number
     itemPickerOpen: boolean
     withAsterisk: boolean
@@ -69,6 +75,7 @@ export const ItemSelect = (
               hideChance
               user={user}
               attendees={attendees}
+              highPrioItems={highPrioItems}
             />
           ))}
           {Array.from({
@@ -90,7 +97,8 @@ export const ItemSelect = (
           <Text
             size="sm"
             c="var(--mantine-color-error)"
-            hidden={value.length <= (itemLimit || Infinity)}
+            hidden={suppressLimitMessage ||
+              value.length <= (itemLimit || Infinity)}
           >
             You can SR at most {itemLimit} item{itemLimit == 1 ? "" : "s"}.
           </Text>
@@ -105,6 +113,8 @@ export const ItemSelect = (
         attendees={attendees}
         selectMode
         hardReserves={hardReserves}
+        highPrioItems={highPrioItems}
+        blockedItemIds={blockedItemIds}
         sameItemLimit={sameItemLimit}
         itemPickerOpen={itemPickerOpen}
       />

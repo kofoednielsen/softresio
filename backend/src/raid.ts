@@ -96,6 +96,7 @@ app.post("/api/raid/create", async (c) => {
     .object({
       raidId: raidIdSchema.optional(),
       hardReserves: z.array(z.number()),
+      highPrioItems: z.array(z.number()),
       allowDuplicateSr: z.boolean(),
       useSrPlus: z.boolean(),
       description: z.string().max(280),
@@ -125,6 +126,7 @@ app.post("/api/raid/create", async (c) => {
     time,
     description,
     hardReserves,
+    highPrioItems,
     allowDuplicateSr,
     guildId,
   }: CreateEditRaidRequest = request.data
@@ -179,6 +181,7 @@ app.post("/api/raid/create", async (c) => {
           admins: raid?.admins || [user],
           owner: raid?.owner || user,
           hardReserves,
+          highPrioItems,
           allowDuplicateSr,
           guildId,
         }
